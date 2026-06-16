@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ease-out-premium: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@layer components {
+  .field-label {
+    @apply block text-[10px] font-bold text-slate-400 mb-1.5 tracking-wider uppercase;
+  }
+  .field-input {
+    @apply w-full border border-slate-200 rounded-xl px-3.5 py-2 text-sm bg-slate-50/50 text-slate-800
+           focus:bg-white focus:outline-none focus:border-secondary focus:ring-4 focus:ring-secondary/10 focus:shadow-sm
+           hover:border-slate-300 hover:bg-slate-50
+           transition-all duration-200 ease-out;
+  }
+  .field-input[readonly] {
+    @apply bg-slate-100/60 border-slate-200/50 text-slate-400 cursor-not-allowed select-none focus:ring-0 focus:border-slate-200/50 focus:shadow-none hover:bg-slate-100/60 hover:border-slate-200/50;
+  }
+  .tooltip-icon {
+    @apply inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-100/80
+           text-slate-400 text-[10px] font-bold ml-1 cursor-help hover:bg-slate-200 hover:text-slate-600 transition-colors;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Efectos globales de scrollbar elegantes */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
