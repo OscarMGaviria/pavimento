@@ -53,10 +53,10 @@
             <!-- Stats Panel -->
             <div v-if="activeParam === 'stats'" class="flex flex-col h-full gap-4 pb-1">
               <!-- Gráfico de Confiabilidad (Campana de Gauss - Interactivo, Sin fondo, 90% ancho, Más alto y ancho) -->
-              <div class="w-full flex-1 min-h-0 flex items-center justify-center py-1 select-none overflow-visible">
+              <div class="w-full h-[200px] md:flex-1 md:min-h-0 flex items-center justify-center py-1 select-none overflow-visible">
                 <svg
                   ref="svgRef"
-                  class="w-[92%] h-full max-h-[320px] cursor-ew-resize select-none overflow-visible touch-none"
+                  class="w-[92%] h-full max-h-[200px] md:max-h-[320px] cursor-ew-resize select-none overflow-visible touch-none"
                   viewBox="0 0 340 320"
                   @mousedown="startDrag"
                   @mousemove="onDrag"
@@ -188,10 +188,10 @@
                 </button>
               </div>
               <!-- Gráfico de Pérdida de Serviciabilidad (Interactivo, Sin fondo, 92% ancho, Más alto) -->
-              <div class="w-full flex-1 min-h-0 flex items-center justify-center py-1 select-none overflow-visible">
+              <div class="w-full h-[200px] md:flex-1 md:min-h-0 flex items-center justify-center py-1 select-none overflow-visible">
                 <svg
                   ref="servSvgRef"
-                  class="w-[92%] h-full max-h-[320px] select-none overflow-visible touch-none"
+                  class="w-[92%] h-full max-h-[200px] md:max-h-[320px] select-none overflow-visible touch-none"
                   viewBox="0 0 340 320"
                   @mousemove="onDragServ"
                   @mouseup="endDragServ"

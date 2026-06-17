@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white rounded-2xl border border-slate-100 shadow-sm shadow-slate-100/40 p-4 select-none flex flex-col h-full overflow-hidden">
+  <div class="diagram-container bg-white rounded-2xl border border-slate-100 shadow-sm shadow-slate-100/40 p-4 select-none flex flex-col h-full overflow-hidden">
     <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 shrink-0">Esquema 2D (Sección)</h2>
 
     <div v-if="results" class="w-full flex-1 min-h-0 flex justify-center items-center overflow-hidden">
@@ -110,3 +110,12 @@ const svgH = computed(() => {
   return layerRects.value.reduce((a, r) => a + r.h, 0)
 })
 </script>
+
+<style scoped>
+/* Altura máxima de la gráfica lateral solo cuando la pantalla es muy baja (p. ej. menos de 800px) */
+@media (max-height: 800px) {
+  .diagram-container {
+    max-height: 250px;
+  }
+}
+</style>
