@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 space-y-6 select-none">
+  <div class="p-4 md:p-6 space-y-4 md:space-y-6 select-none">
     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm shadow-slate-100/40 p-6 max-w-xl">
       <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-5">Generar reporte PDF</h2>
 

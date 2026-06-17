@@ -4,7 +4,7 @@
       {{ titles[active] }}
     </h1>
     <div class="flex items-center gap-2">
-      <span class="text-[10px] text-slate-400 font-semibold tracking-wider uppercase font-mono">AASHTO Guide for Design of Pavement Structures, 1993</span>
+      <span class="hidden sm:inline text-[10px] text-slate-400 font-semibold tracking-wider uppercase font-mono">AASHTO Guide for Design of Pavement Structures, 1993</span>
     </div>
   </header>
 </template>

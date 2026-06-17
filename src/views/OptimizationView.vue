@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 space-y-6 select-none">
+  <div class="p-4 md:p-6 space-y-4 md:space-y-6 select-none">
 
     <!-- Aviso si no hay 3 capas -->
     <div v-if="state.numCapas !== 3"

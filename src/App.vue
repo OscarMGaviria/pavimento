@@ -11,7 +11,7 @@
     <!-- Layout Principal -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
       <TopBar :active="view" />
-      <main class="flex-1 overflow-auto">
+      <main :class="['flex-1 overflow-auto', view === 'design' ? 'pb-32 md:pb-0' : 'pb-20 md:pb-0']">
         <DesignView       v-if="view === 'design'"       />
         <OptimizationView v-else-if="view === 'optimization'" />
         <ReportView       v-else-if="view === 'report'"  />
@@ -21,7 +21,7 @@
     <!-- Panel Flotante de Parámetros -->
     <Transition name="panel-slide">
       <div v-if="activeParam && view === 'design'"
-        class="fixed left-24 top-16 bottom-16 z-40 bg-white rounded-2xl border border-slate-100 shadow-2xl p-6 w-[360px] select-none flex flex-col justify-between">
+        class="parameter-drawer-panel fixed left-4 right-4 md:left-24 md:right-auto top-16 bottom-32 md:bottom-16 z-40 bg-white rounded-2xl border border-slate-100 shadow-2xl p-4 md:p-6 w-auto md:w-[360px] select-none flex flex-col justify-between">
         
         <div class="flex-1 flex flex-col min-h-0">
           <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-5 shrink-0">
@@ -439,6 +439,61 @@
         </div>
       </div>
     </Transition>
+
+    <!-- Barra de Parámetros Móvil -->
+    <div v-if="view === 'design'" class="md:hidden fixed bottom-16 left-0 right-0 h-14 bg-slate-950 border-t border-slate-900 flex flex-row items-center justify-around px-4 z-40">
+      <button
+        v-for="item in paramsList"
+        :key="item.id"
+        @click="toggleParam(item.id)"
+        :class="[
+          'w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-200 cursor-pointer active:scale-90 border',
+          activeParam === item.id
+            ? 'bg-slate-900 text-amber-400 border-amber-500/30 shadow-md shadow-amber-950/40'
+            : 'text-slate-500 hover:text-slate-300 border-transparent'
+        ]"
+      >
+        <!-- Icono Capas -->
+        <svg v-if="item.id === 'layers'" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+
+        <!-- Icono Estadísticas -->
+        <svg v-else-if="item.id === 'stats'" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"/>
+          <line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>
+
+        <!-- Icono Serviciabilidad -->
+        <svg v-else-if="item.id === 'serv'" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+
+        <!-- Icono Tránsito -->
+        <svg v-else-if="item.id === 'traffic'" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="3" width="15" height="13" rx="2"/>
+          <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+          <circle cx="5.5" cy="18.5" r="2.5"/>
+          <circle cx="18.5" cy="18.5" r="2.5"/>
+        </svg>
+
+        <!-- Icono Materiales -->
+        <svg v-else-if="item.id === 'materials'" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" y1="21" x2="4" y2="14"/>
+          <line x1="4" y1="10" x2="4" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="12"/>
+          <line x1="12" y1="8" x2="12" y2="3"/>
+          <line x1="20" y1="21" x2="20" y2="16"/>
+          <line x1="20" y1="12" x2="20" y2="3"/>
+          <line x1="1" y1="14" x2="7" y2="14"/>
+          <line x1="9" y1="8" x2="15" y2="8"/>
+          <line x1="17" y1="16" x2="23" y2="16"/>
+        </svg>
+      </button>
+    </div>
 
     <!-- Modal de Guía de Valores So -->
     <Transition name="modal-fade">
@@ -1461,6 +1516,14 @@ import { useAASHTODesign } from '@/composables/useAASHTODesign.js'
 
 const { state: s, results, setReliability, RELIABILITY_OPTIONS } = useAASHTODesign()
 
+const paramsList = [
+  { id: 'layers',    label: 'Capas' },
+  { id: 'stats',     label: 'Estadísticas' },
+  { id: 'serv',      label: 'Serviciabilidad' },
+  { id: 'traffic',   label: 'Tránsito' },
+  { id: 'materials', label: 'Materiales' },
+]
+
 // Validar límites y relación de serviciabilidad al cambiar los inputs
 const validateServiciabilidad = () => {
   if (typeof s.pi !== 'number' || isNaN(s.pi)) s.pi = 4.2
@@ -2103,9 +2166,10 @@ const handleClickOutside = (e) => {
     return
   }
 
-  const panel = document.querySelector('.fixed.left-24')
+  const panel = document.querySelector('.parameter-drawer-panel')
   const sidebar = document.querySelector('aside')
-  if (panel && !panel.contains(e.target) && sidebar && !sidebar.contains(e.target)) {
+  const mobileParamBar = document.querySelector('.fixed.bottom-16')
+  if (panel && !panel.contains(e.target) && sidebar && !sidebar.contains(e.target) && (!mobileParamBar || !mobileParamBar.contains(e.target))) {
     activeParam.value = null
   }
 }

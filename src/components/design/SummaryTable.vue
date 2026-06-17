@@ -36,8 +36,8 @@
       <!-- Tabla 2: Estructura de capas y resultados -->
       <div class="xl:col-span-2 flex flex-col gap-2">
         <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Resultados Estructurales</h3>
-        <div class="border border-slate-100 rounded-xl overflow-hidden text-[11px] flex-1">
-          <table class="w-full h-full">
+        <div class="border border-slate-100 rounded-xl overflow-x-auto overflow-y-hidden md:overflow-hidden text-[11px] flex-1">
+          <table class="w-full h-full min-w-[500px] md:min-w-0">
             <thead>
               <tr class="bg-slate-50 border-b border-slate-100 text-slate-400 font-bold uppercase text-[9px] tracking-wider">
                 <th class="py-1.5 px-2 text-left">Capa</th>

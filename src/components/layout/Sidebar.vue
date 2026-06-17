@@ -1,13 +1,13 @@
 <template>
-  <aside class="w-20 min-h-screen bg-slate-950 border-r border-slate-900 flex flex-col items-center select-none py-6 shrink-0">
+  <aside class="fixed bottom-0 left-0 right-0 w-full h-16 md:relative md:w-20 md:min-h-screen bg-slate-950 border-t md:border-t-0 md:border-r border-slate-900 flex flex-row md:flex-col items-center justify-around md:justify-start select-none px-4 md:px-0 py-0 md:py-6 shrink-0 z-50">
     <!-- Logo Compacto -->
-    <div class="mb-8 text-center">
+    <div class="hidden md:block mb-8 text-center">
       <span class="text-transparent bg-clip-text bg-gradient-to-br from-slate-200 to-slate-400 font-mono font-extrabold text-sm tracking-tight leading-none block">AASHTO</span>
       <span class="text-slate-600 font-mono text-[8px] font-bold uppercase block mt-1 tracking-wider">93</span>
     </div>
 
     <!-- Navegación de Vistas -->
-    <nav class="flex flex-col gap-3.5 w-full px-3">
+    <nav class="flex flex-row md:flex-col gap-1 md:gap-3.5 w-auto md:w-full px-0 md:px-3 justify-around md:justify-start">
       <div v-for="item in nav" :key="item.id" class="relative group flex justify-center">
         <button
           @click="$emit('change', item.id)"
@@ -39,17 +39,17 @@
           </svg>
         </button>
         <!-- Tooltip -->
-        <span class="absolute left-16 top-1/2 -translate-y-1/2 bg-slate-900 text-slate-100 text-[10px] font-bold uppercase tracking-wider py-1.5 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none z-50 whitespace-nowrap border border-slate-800 shadow-xl">
+        <span class="hidden md:block absolute left-16 top-1/2 -translate-y-1/2 bg-slate-900 text-slate-100 text-[10px] font-bold uppercase tracking-wider py-1.5 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none z-50 whitespace-nowrap border border-slate-800 shadow-xl">
           {{ item.label }}
         </span>
       </div>
     </nav>
 
     <!-- Divisor -->
-    <div class="w-10 h-[1px] bg-slate-900/60 my-6"></div>
+    <div class="hidden md:block w-10 h-[1px] bg-slate-900/60 my-6"></div>
 
     <!-- Barra de Edición de Parámetros -->
-    <div v-if="active === 'design'" class="flex-1 flex flex-col gap-3.5 w-full px-3">
+    <div v-if="active === 'design'" class="hidden md:flex flex-col gap-3.5 w-full px-3">
       <div v-for="item in params" :key="item.id" class="relative group flex justify-center">
         <button
           @click="$emit('toggle-param', item.id)"
@@ -101,15 +101,15 @@
           </svg>
         </button>
         <!-- Tooltip -->
-        <span class="absolute left-16 top-1/2 -translate-y-1/2 bg-slate-900 text-slate-100 text-[10px] font-bold uppercase tracking-wider py-1.5 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none z-50 whitespace-nowrap border border-slate-800 shadow-xl">
+        <span class="hidden md:block absolute left-16 top-1/2 -translate-y-1/2 bg-slate-900 text-slate-100 text-[10px] font-bold uppercase tracking-wider py-1.5 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none z-50 whitespace-nowrap border border-slate-800 shadow-xl">
           {{ item.label }}
         </span>
       </div>
     </div>
-    <div v-else class="flex-1"></div>
+    <div v-else class="hidden md:block flex-1"></div>
 
     <!-- Footer Compacto -->
-    <div class="mt-auto pt-6 text-center w-full border-t border-slate-900/60">
+    <div class="hidden md:block mt-auto pt-6 text-center w-full border-t border-slate-900/60">
       <span class="text-slate-700 text-[8px] font-mono block">v1.0</span>
     </div>
   </aside>
