@@ -1,14 +1,18 @@
 <template>
-  <div class="flex flex-col gap-6 p-6 min-h-full overflow-y-auto select-none">
-    <!-- Sección Superior: Visor 3D Interactivo a Ancho Completo -->
-    <div class="w-full shrink-0">
-      <Pavement3D />
+  <div class="flex flex-col gap-4 p-4 h-[calc(100vh-4rem)] overflow-hidden select-none">
+    <!-- Fila Superior: 3D Izquierda, 2D Derecha -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 flex-1 min-h-0">
+      <div class="xl:col-span-2 h-full">
+        <Pavement3D class="h-full" />
+      </div>
+      <div class="xl:col-span-1 h-full">
+        <PavementDiagram class="h-full" />
+      </div>
     </div>
 
-    <!-- Sección Inferior: Diagrama 2D y Tabla Resumen Consolidadora -->
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
-      <PavementDiagram class="xl:col-span-1" />
-      <SummaryTable class="xl:col-span-2" />
+    <!-- Fila Inferior: Tabla -->
+    <div class="w-full shrink-0">
+      <SummaryTable />
     </div>
   </div>
 </template>

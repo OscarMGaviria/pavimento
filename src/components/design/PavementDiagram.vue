@@ -1,36 +1,33 @@
 <template>
-  <div class="bg-white rounded-2xl border border-slate-100 shadow-sm shadow-slate-100/40 p-6 select-none flex flex-col items-center">
-    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-5 self-start">Esquema 2D (Sección)</h2>
+  <div class="bg-white rounded-2xl border border-slate-100 shadow-sm shadow-slate-100/40 p-4 select-none flex flex-col h-full overflow-hidden">
+    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 shrink-0">Esquema 2D (Sección)</h2>
 
-    <div v-if="results" class="w-full flex justify-center py-2">
+    <div v-if="results" class="w-full flex-1 min-h-0 flex justify-center items-center overflow-hidden">
       <!-- SVG Proporcional Estilizado -->
-      <svg :width="svgW + 60" :height="svgH + 28" class="overflow-visible">
+      <svg :viewBox="`0 0 ${svgW + 60} ${svgH + 28}`" class="w-full h-full max-h-full overflow-visible">
         <defs>
           <!-- Degradado Carpeta Asfáltica -->
           <linearGradient id="grad-asphalt" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#475569" />
-            <stop offset="100%" stop-color="#1e293b" />
+            <stop offset="0%" stop-color="#404859" />
+            <stop offset="100%" stop-color="#2d333f" />
           </linearGradient>
           
           <!-- Degradado Base Granular -->
           <linearGradient id="grad-base" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#cbd5e1" />
-            <stop offset="40%" stop-color="#b4a78c" />
-            <stop offset="100%" stop-color="#8a7c62" />
+            <stop offset="0%" stop-color="#c1b6a2" />
+            <stop offset="100%" stop-color="#b0a38c" />
           </linearGradient>
 
           <!-- Degradado Sub-base Granular -->
           <linearGradient id="grad-subbase" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#94a3b8" />
-            <stop offset="50%" stop-color="#856b54" />
-            <stop offset="100%" stop-color="#5c4937" />
+            <stop offset="0%" stop-color="#99775f" />
+            <stop offset="100%" stop-color="#826550" />
           </linearGradient>
 
           <!-- Degradado Subrasante -->
           <linearGradient id="grad-subgrade" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#22c55e" stop-opacity="0.15" />
-            <stop offset="20%" stop-color="#15803d" />
-            <stop offset="100%" stop-color="#166534" />
+            <stop offset="0%" stop-color="#1b9c4b" />
+            <stop offset="100%" stop-color="#15803d" />
           </linearGradient>
         </defs>
 
@@ -51,7 +48,7 @@
         </g>
 
         <!-- Subrasante fondo -->
-        <rect x="2" :y="svgH" width="svgW - 4" height="24" fill="url(#grad-subgrade)" rx="4" class="stroke-white/10" stroke-width="1" />
+        <rect x="2" :y="svgH" :width="svgW - 4" height="24" fill="url(#grad-subgrade)" rx="4" class="stroke-white/10" stroke-width="1" />
         <text x="15" :y="svgH + 15" font-size="9" fill="white" font-family="Fira Sans, sans-serif" font-weight="700" class="tracking-wide uppercase opacity-90 pointer-events-none">Subrasante</text>
 
         <!-- Cotas de espesor -->

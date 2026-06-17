@@ -31,7 +31,7 @@
             <button @click="activeParam = null" class="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full font-bold text-xs cursor-pointer transition-colors">✕</button>
           </div>
 
-          <div class="flex-1 overflow-auto pr-1">
+          <div class="flex-1 overflow-y-auto pr-1 flex flex-col">
             <!-- Capas Panel -->
             <div v-if="activeParam === 'layers'" class="space-y-4">
               <label class="field-label mb-2">Número de capas estructurales</label>
@@ -51,12 +51,12 @@
             </div>
 
             <!-- Stats Panel -->
-            <div v-if="activeParam === 'stats'" class="space-y-4">
+            <div v-if="activeParam === 'stats'" class="flex flex-col h-full gap-4 pb-1">
               <!-- Gráfico de Confiabilidad (Campana de Gauss - Interactivo, Sin fondo, 90% ancho, Más alto y ancho) -->
-              <div class="w-full flex justify-center py-1 select-none overflow-visible">
+              <div class="w-full flex-1 min-h-0 flex items-center justify-center py-1 select-none overflow-visible">
                 <svg
                   ref="svgRef"
-                  class="w-[92%] h-[320px] cursor-ew-resize select-none overflow-visible touch-none"
+                  class="w-[92%] h-full max-h-[320px] cursor-ew-resize select-none overflow-visible touch-none"
                   viewBox="0 0 340 320"
                   @mousedown="startDrag"
                   @mousemove="onDrag"
@@ -110,7 +110,7 @@
                 </svg>
               </div>
 
-              <div class="relative relative-dropdown-container">
+              <div class="relative relative-dropdown-container shrink-0">
                 <div class="flex items-center justify-between mb-1.5">
                   <label class="field-label mb-0">Confiabilidad R (%)</label>
                   <button 
@@ -153,11 +153,11 @@
                   </div>
                 </Transition>
               </div>
-              <div>
+              <div class="shrink-0">
                 <label class="field-label">Desviación estándar normal (Zr)</label>
                 <input v-model.number="s.Zr" type="number" step="0.001" class="field-input font-mono" readonly />
               </div>
-              <div class="space-y-1.5">
+              <div class="space-y-1.5 shrink-0">
                 <div class="flex items-center justify-between">
                   <label class="field-label mb-0">Error estándar combinado (So)</label>
                   <button 
@@ -175,8 +175,8 @@
             </div>
 
             <!-- Serviciabilidad Panel -->
-            <div v-if="activeParam === 'serv'" class="space-y-4">
-              <div class="flex items-center justify-between">
+            <div v-if="activeParam === 'serv'" class="flex flex-col h-full gap-4 pb-1">
+              <div class="flex items-center justify-between shrink-0">
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Visualización de pérdida</span>
                 <button 
                   type="button" 
@@ -188,10 +188,10 @@
                 </button>
               </div>
               <!-- Gráfico de Pérdida de Serviciabilidad (Interactivo, Sin fondo, 92% ancho, Más alto) -->
-              <div class="w-full flex justify-center py-1 select-none overflow-visible">
+              <div class="w-full flex-1 min-h-0 flex items-center justify-center py-1 select-none overflow-visible">
                 <svg
                   ref="servSvgRef"
-                  class="w-[92%] h-[320px] select-none overflow-visible touch-none"
+                  class="w-[92%] h-full max-h-[320px] select-none overflow-visible touch-none"
                   viewBox="0 0 340 320"
                   @mousemove="onDragServ"
                   @mouseup="endDragServ"
@@ -321,7 +321,7 @@
               </div>
 
               <!-- Inputs Numéricos de Serviciabilidad -->
-              <div class="grid grid-cols-2 gap-3">
+              <div class="grid grid-cols-2 gap-3 shrink-0">
                 <div>
                   <label class="field-label">Servic. Inicial (pᵢ)</label>
                   <input v-model.number="s.pi" type="number" step="0.1" min="3.5" max="5.0" class="field-input font-mono" @change="validateServiciabilidad" />
@@ -331,7 +331,7 @@
                   <input v-model.number="s.pt" type="number" step="0.1" min="1.5" max="3.5" class="field-input font-mono" @change="validateServiciabilidad" />
                 </div>
               </div>
-              <div>
+              <div class="shrink-0">
                 <label class="field-label">Pérdida de serviciabilidad (ΔPSI)</label>
                 <input :value="s.DPSI" type="number" class="field-input font-mono" readonly />
               </div>
@@ -340,7 +340,17 @@
             <!-- Tránsito Panel -->
             <div v-if="activeParam === 'traffic'" class="space-y-4">
               <div>
-                <label class="field-label">Ejes equivalentes (W₁₈)</label>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="field-label mb-0">Ejes equivalentes (W₁₈)</label>
+                  <button 
+                    type="button" 
+                    @click="isTrafficHelpModalOpen = true" 
+                    class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer bg-indigo-50 hover:bg-indigo-100/80 px-2 py-0.5 rounded-md transition-colors select-none"
+                  >
+                    <span>Calculadora</span>
+                    <span class="w-3.5 h-3.5 flex items-center justify-center bg-indigo-600 text-white rounded-full text-[9px]">?</span>
+                  </button>
+                </div>
                 <input v-model.number="s.W18" type="number" step="100000" min="1000" class="field-input font-mono" />
               </div>
             </div>
@@ -349,7 +359,12 @@
             <div v-if="activeParam === 'materials'" class="space-y-4 pr-1">
               <!-- Carpeta asfáltica -->
               <div class="p-3 bg-slate-50/30 border border-slate-100 rounded-xl space-y-2">
-                <span class="text-[10px] font-bold text-slate-800 uppercase tracking-wider block">Carpeta asfáltica</span>
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] font-bold text-slate-800 uppercase tracking-wider block">Carpeta asfáltica</span>
+                  <button type="button" @click="isA1HelpModalOpen = true" class="text-[9px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer bg-indigo-50 hover:bg-indigo-100/80 px-1.5 py-0.5 rounded-md transition-colors select-none">
+                    <span>Guía</span><span class="w-3 h-3 flex items-center justify-center bg-indigo-600 text-white rounded-full text-[8px]">?</span>
+                  </button>
+                </div>
                 <div class="flex items-center justify-between gap-4">
                   <span class="text-xs text-slate-500 font-medium">Coeficiente a₁</span>
                   <input type="number" step="0.001" v-model.number="s.a1" class="w-24 border border-slate-200 rounded-lg px-2 py-1 text-xs font-mono text-right" />
@@ -358,7 +373,12 @@
 
               <!-- Base granular -->
               <div v-if="s.numCapas >= 2" class="p-3 bg-slate-50/30 border border-slate-100 rounded-xl space-y-2">
-                <span class="text-[10px] font-bold text-stone-600 uppercase tracking-wider block">Base granular</span>
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] font-bold text-stone-600 uppercase tracking-wider block">Base granular</span>
+                  <button type="button" @click="isA2HelpModalOpen = true" class="text-[9px] font-bold text-stone-600 hover:text-stone-800 flex items-center gap-1 cursor-pointer bg-stone-100 hover:bg-stone-200 px-1.5 py-0.5 rounded-md transition-colors select-none">
+                    <span>Guía</span><span class="w-3 h-3 flex items-center justify-center bg-stone-600 text-white rounded-full text-[8px]">?</span>
+                  </button>
+                </div>
                 <div class="flex items-center justify-between gap-4">
                   <span class="text-xs text-slate-500 font-medium">Mr₁ (psi)</span>
                   <input type="number" step="1000" v-model.number="s.Mr1" class="w-24 border border-slate-200 rounded-lg px-2 py-1 text-xs font-mono text-right" />
@@ -368,14 +388,22 @@
                   <input type="number" step="0.001" v-model.number="s.a2" class="w-24 border border-slate-200 rounded-lg px-2 py-1 text-xs font-mono text-right" />
                 </div>
                 <div class="flex items-center justify-between gap-4">
-                  <span class="text-xs text-slate-500 font-medium">Drenaje m₂</span>
+                  <div class="flex items-center gap-1">
+                    <span class="text-xs text-slate-500 font-medium">Drenaje m₂</span>
+                    <button type="button" @click="openDrainageModal('m2')" class="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold transition-colors">?</button>
+                  </div>
                   <input type="number" step="0.01" v-model.number="s.m2" class="w-24 border border-slate-200 rounded-lg px-2 py-1 text-xs font-mono text-right" />
                 </div>
               </div>
 
               <!-- Sub-base -->
               <div v-if="s.numCapas === 3" class="p-3 bg-slate-50/30 border border-slate-100 rounded-xl space-y-2">
-                <span class="text-[10px] font-bold text-amber-800/80 uppercase tracking-wider block">Sub-base granular</span>
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] font-bold text-amber-800/80 uppercase tracking-wider block">Sub-base granular</span>
+                  <button type="button" @click="isA3HelpModalOpen = true" class="text-[9px] font-bold text-amber-600 hover:text-amber-800 flex items-center gap-1 cursor-pointer bg-amber-50 hover:bg-amber-100/80 px-1.5 py-0.5 rounded-md transition-colors select-none">
+                    <span>Guía</span><span class="w-3 h-3 flex items-center justify-center bg-amber-500 text-white rounded-full text-[8px]">?</span>
+                  </button>
+                </div>
                 <div class="flex items-center justify-between gap-4">
                   <span class="text-xs text-slate-500 font-medium">Mr₂ (psi)</span>
                   <input type="number" step="1000" v-model.number="s.Mr2" class="w-24 border border-slate-200 rounded-lg px-2 py-1 text-xs font-mono text-right" />
@@ -385,14 +413,22 @@
                   <input type="number" step="0.001" v-model.number="s.a3" class="w-24 border border-slate-200 rounded-lg px-2 py-1 text-xs font-mono text-right" />
                 </div>
                 <div class="flex items-center justify-between gap-4">
-                  <span class="text-xs text-slate-500 font-medium">Drenaje m₃</span>
+                  <div class="flex items-center gap-1">
+                    <span class="text-xs text-slate-500 font-medium">Drenaje m₃</span>
+                    <button type="button" @click="openDrainageModal('m3')" class="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold transition-colors">?</button>
+                  </div>
                   <input type="number" step="0.01" v-model.number="s.m3" class="w-24 border border-slate-200 rounded-lg px-2 py-1 text-xs font-mono text-right" />
                 </div>
               </div>
 
               <!-- Subrasante -->
               <div class="p-3 bg-slate-50/30 border border-slate-100 rounded-xl space-y-2">
-                <span class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block">Subrasante</span>
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block">Subrasante</span>
+                  <button type="button" @click="isMrHelpModalOpen = true" class="text-[9px] font-bold text-emerald-600 hover:text-emerald-800 flex items-center gap-1 cursor-pointer bg-emerald-50 hover:bg-emerald-100/80 px-1.5 py-0.5 rounded-md transition-colors select-none">
+                    <span>Guía</span><span class="w-3 h-3 flex items-center justify-center bg-emerald-500 text-white rounded-full text-[8px]">?</span>
+                  </button>
+                </div>
                 <div class="flex items-center justify-between gap-4">
                   <span class="text-xs text-slate-500 font-medium">Mr₃ (psi)</span>
                   <input type="number" step="500" v-model.number="s.Mr3" class="w-24 border border-slate-200 rounded-lg px-2 py-1 text-xs font-mono text-right" />
@@ -640,10 +676,780 @@
         </div>
       </div>
     </Transition>
+
+    <!-- Modal de Guía y Calculadora de W18 -->
+    <Transition name="modal-fade">
+      <div v-if="isTrafficHelpModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div @click.stop class="bg-white rounded-2xl border border-slate-100 shadow-2xl w-full max-w-lg overflow-hidden flex flex-col">
+          <!-- Cabecera -->
+          <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
+              Estimación de Ejes Equivalentes (N)
+            </h3>
+            <button 
+              @click="isTrafficHelpModalOpen = false" 
+              class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 rounded-full font-bold text-sm cursor-pointer transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+          
+          <!-- Contenido -->
+          <div class="p-6 space-y-4 text-xs text-slate-600 leading-relaxed overflow-y-auto max-h-[75vh]">
+            <p>
+              Procedimiento de estimación basado en la Guía AASHTO 93 empleando integración continua para el crecimiento:
+            </p>
+            
+            <div class="grid grid-cols-2 gap-4 gap-y-5">
+              <!-- TPDS -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="field-label text-[10px] mb-0">TPDS inicial</label>
+                  <button type="button" @click="calcHelpKey = 'tpds'" class="text-[9px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer bg-indigo-50 hover:bg-indigo-100/80 px-1.5 py-0.5 rounded-md transition-colors select-none"><span>Guía</span><span class="w-3 h-3 flex items-center justify-center bg-indigo-600 text-white rounded-full text-[8px]">?</span></button>
+                </div>
+                <input v-model.number="calcTraffic.tpds" type="number" class="field-input font-mono w-full" />
+              </div>
+              <!-- Factor Camión FC -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="field-label text-[10px] mb-0">Factor Camión (FC)</label>
+                  <button type="button" @click="calcHelpKey = 'fc'" class="text-[9px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer bg-indigo-50 hover:bg-indigo-100/80 px-1.5 py-0.5 rounded-md transition-colors select-none"><span>Guía</span><span class="w-3 h-3 flex items-center justify-center bg-indigo-600 text-white rounded-full text-[8px]">?</span></button>
+                </div>
+                <input v-model.number="calcTraffic.fc" type="number" step="0.01" class="field-input font-mono w-full" />
+              </div>
+              <!-- k1 -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="field-label text-[10px] mb-0">% Pesados (k₁)</label>
+                  <button type="button" @click="calcHelpKey = 'k1'" class="text-[9px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer bg-indigo-50 hover:bg-indigo-100/80 px-1.5 py-0.5 rounded-md transition-colors select-none"><span>Guía</span><span class="w-3 h-3 flex items-center justify-center bg-indigo-600 text-white rounded-full text-[8px]">?</span></button>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input v-model.number="calcTraffic.k1" type="number" step="1" max="100" class="field-input font-mono w-full" />
+                  <button @click="showK1Estimator = !showK1Estimator" class="px-2 py-[7px] bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 text-indigo-600 rounded-lg text-[10px] font-bold shrink-0 transition-colors" title="Estimar k1">🧮</button>
+                </div>
+              </div>
+              <!-- k2 -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="field-label text-[10px] mb-0">% Carril (k₂)</label>
+                  <button type="button" @click="calcHelpKey = 'k2'" class="text-[9px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer bg-indigo-50 hover:bg-indigo-100/80 px-1.5 py-0.5 rounded-md transition-colors select-none"><span>Guía</span><span class="w-3 h-3 flex items-center justify-center bg-indigo-600 text-white rounded-full text-[8px]">?</span></button>
+                </div>
+                <select v-model.number="calcTraffic.k2" class="field-input font-mono w-full text-[10px] py-[7px]">
+                  <option :value="100">1 carril/dir (100%)</option>
+                  <option :value="80">3 carr/1 dir (80%)</option>
+                  <option :value="50">2 carr/1 dir (50%)</option>
+                  <option :value="45">4 carr/2 dir (45%)</option>
+                  <option :value="calcTraffic.k2" v-if="![100,80,50,45].includes(calcTraffic.k2)">Personalizado ({{calcTraffic.k2}}%)</option>
+                </select>
+              </div>
+              <!-- r -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="field-label text-[10px] mb-0">Crecimiento r (%)</label>
+                  <button type="button" @click="calcHelpKey = 'r'" class="text-[9px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer bg-indigo-50 hover:bg-indigo-100/80 px-1.5 py-0.5 rounded-md transition-colors select-none"><span>Guía</span><span class="w-3 h-3 flex items-center justify-center bg-indigo-600 text-white rounded-full text-[8px]">?</span></button>
+                </div>
+                <input v-model.number="calcTraffic.r" type="number" step="0.1" class="field-input font-mono w-full" />
+              </div>
+              <!-- n -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="field-label text-[10px] mb-0">Período n (años)</label>
+                  <button type="button" @click="calcHelpKey = 'n'" class="text-[9px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer bg-indigo-50 hover:bg-indigo-100/80 px-1.5 py-0.5 rounded-md transition-colors select-none"><span>Guía</span><span class="w-3 h-3 flex items-center justify-center bg-indigo-600 text-white rounded-full text-[8px]">?</span></button>
+                </div>
+                <input v-model.number="calcTraffic.n" type="number" step="1" class="field-input font-mono w-full" />
+              </div>
+            </div>
+
+            <!-- Estimador k1 -->
+            <div v-if="showK1Estimator" class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+              <div class="flex justify-between items-center mb-1">
+                 <h4 class="text-[10px] font-bold text-slate-700 uppercase">Estimador de k₁ (% Vehículos Pesados)</h4>
+                 <button @click="showK1Estimator = false" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                 <div><label class="field-label text-[9px] mb-1">Buses (%)</label><input v-model.number="calcK1.buses" type="number" class="field-input font-mono text-[10px] w-full" /></div>
+                 <div><label class="field-label text-[9px] mb-1">Camiones C2 (%)</label><input v-model.number="calcK1.c2" type="number" class="field-input font-mono text-[10px] w-full" /></div>
+                 <div><label class="field-label text-[9px] mb-1">Camiones C3+ (%)</label><input v-model.number="calcK1.c3" type="number" class="field-input font-mono text-[10px] w-full" /></div>
+                 <div><label class="field-label text-[9px] mb-1">Articulados (%)</label><input v-model.number="calcK1.articulados" type="number" class="field-input font-mono text-[10px] w-full" /></div>
+              </div>
+              <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-200">
+                <span class="text-[10px] text-slate-600 font-bold">Total estimado: <span class="text-indigo-600 text-sm">{{ estimatedK1Sum }}%</span></span>
+                <button @click="applyEstimatedK1" class="px-3 py-1 bg-indigo-600 text-white rounded text-[9px] font-bold hover:bg-indigo-700">Aplicar</button>
+              </div>
+            </div>
+
+            <!-- Fórmula Visual y Desarrollo -->
+            <div id="pdf-equations-container" class="p-4 bg-slate-50 border border-slate-100 rounded-xl overflow-x-auto">
+              <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2 text-center">Ecuación General</span>
+              <div v-html="formulaGeneralHtml" class="text-center"></div>
+              
+              <div class="mt-4 pt-3 border-t border-slate-200">
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2 text-center">Desarrollo del Cálculo</span>
+                <div v-html="formulaPasoHtml" class="text-center text-[10px] scale-90 sm:scale-100 transform origin-top"></div>
+              </div>
+            </div>
+
+            <!-- Resultado -->
+            <div class="p-4 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-between">
+              <div>
+                <span class="text-[10px] font-bold text-indigo-800 uppercase tracking-wider block">Resultado Estimado (N)</span>
+                <span class="text-lg font-bold text-indigo-600 font-mono">{{ isNaN(calculatedW18) ? 0 : Math.round(calculatedW18).toLocaleString('en-US') }}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button 
+                  @click="exportTrafficPDF"
+                  class="px-3 py-2 bg-white border border-indigo-200 text-indigo-600 rounded-lg font-bold hover:bg-indigo-100 transition-colors shadow-sm active:scale-95 text-xs flex items-center gap-1"
+                  title="Exportar memoria de cálculo a PDF"
+                >
+                  📄 PDF
+                </button>
+                <button 
+                  @click="applyCalculatedTraffic"
+                  class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200 active:scale-95 text-xs"
+                >
+                  Aplicar W₁₈
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Modal de Guías de Parámetros del Cálculo -->
+    <Transition name="modal-fade">
+      <div v-if="calcHelpKey" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div @click.stop class="bg-white rounded-2xl border border-slate-100 shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
+          <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
+              Guía: {{ calcHelpTitles[calcHelpKey] }}
+            </h3>
+            <button 
+              @click="calcHelpKey = null" 
+              class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 rounded-full font-bold text-sm cursor-pointer transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+          
+          <div class="p-6 space-y-4 text-xs text-slate-600 leading-relaxed overflow-y-auto max-h-[70vh]">
+            <template v-if="calcHelpKey === 'tpds'">
+              <p>El <strong>Tránsito Promedio Diario Semanal (TPDS)</strong> corresponde al volumen promedio diario de vehículos al inicio del período de diseño.</p>
+              <ul class="list-disc pl-4 space-y-1">
+                <li>Si el conteo incluye todos los vehículos (autos, motos, etc.), asegúrate de configurar correctamente el porcentaje de vehículos pesados (k₁).</li>
+                <li>Si el TPDS ingresado contabiliza <em>únicamente</em> vehículos comerciales pesados, el parámetro k₁ debe ser 100%.</li>
+              </ul>
+            </template>
+            <template v-else-if="calcHelpKey === 'fc'">
+              <p>El <strong>Factor Camión (FC)</strong> o coeficiente de daño representa cuántos ejes equivalentes de 8.2 toneladas (18 kips) equivale el paso de un vehículo comercial promedio.</p>
+              <p>Se puede determinar de dos formas:</p>
+              <ul class="list-disc pl-4 space-y-1">
+                <li>Promediando ponderadamente los factores de daño de cada tipo de camión respecto a su volumen.</li>
+                <li>Con un estudio de pesaje por ejes, multiplicando la frecuencia de ejes por los Factores de Equivalencia de Carga (FEC).</li>
+              </ul>
+            </template>
+            <template v-else-if="calcHelpKey === 'k1'">
+              <p>El parámetro <strong>k₁</strong> es el porcentaje de vehículos pesados comerciales respecto al flujo vehicular total.</p>
+              <div class="p-3 bg-indigo-50/50 border border-indigo-100 rounded-xl">
+                <strong>Ejemplo:</strong> Si el TPDS es de 775 veh/día y los buses (9%) más los camiones (30%) suman 39%, entonces k₁ = 39%.
+              </div>
+            </template>
+            <template v-else-if="calcHelpKey === 'k2'">
+              <p>El parámetro <strong>k₂</strong> estima el porcentaje del tránsito pesado total que circulará exclusivamente por el <em>carril de diseño</em> (el carril más cargado).</p>
+              <table class="w-full text-left border-collapse border border-slate-100 rounded-xl overflow-hidden mt-2">
+                <thead>
+                  <tr class="bg-slate-50 text-[9px] uppercase font-bold text-slate-400">
+                    <th class="px-3 py-2 border-b border-slate-100">Configuración de la vía</th>
+                    <th class="px-3 py-2 border-b border-slate-100">Valor de k₂ (%)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-b border-slate-100">
+                    <td class="px-3 py-2">Dos carriles (uno por dirección)</td>
+                    <td class="px-3 py-2 font-bold text-indigo-600">50%</td>
+                  </tr>
+                  <tr class="border-b border-slate-100">
+                    <td class="px-3 py-2">Cuatro carriles (dos por dirección)</td>
+                    <td class="px-3 py-2 font-bold text-indigo-600">45%</td>
+                  </tr>
+                  <tr>
+                    <td class="px-3 py-2">Tres carriles (en una dirección)</td>
+                    <td class="px-3 py-2 font-bold text-indigo-600">80%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </template>
+            <template v-else-if="calcHelpKey === 'r'">
+              <p>La <strong>Tasa de Crecimiento (r)</strong> estima el aumento porcentual anual del tránsito comercial durante la vida útil del pavimento.</p>
+              <p>Se obtiene normalmente mediante la regresión de series históricas del TPDS, o basándose en el crecimiento económico proyectado de la región. Valores comunes están entre 1% y 5%.</p>
+            </template>
+            <template v-else-if="calcHelpKey === 'n'">
+              <p>El <strong>Período de diseño (n)</strong> es la vida útil estimada (en años) durante la cual el pavimento soportará las cargas sin requerir rehabilitación mayor.</p>
+              <ul class="list-disc pl-4 space-y-1">
+                <li>Vías de bajo volumen o rurales: <strong>10 a 15 años</strong></li>
+                <li>Vías principales y autopistas: <strong>15 a 20 años o más</strong></li>
+              </ul>
+            </template>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Modal de Guía a1 (Carpeta Asfáltica) -->
+    <Transition name="modal-fade">
+      <div v-if="isA1HelpModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div @click.stop class="bg-white rounded-2xl border border-slate-100 shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
+          <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
+              Estimación de a₁ (Concreto Asfáltico)
+            </h3>
+            <button 
+              @click="isA1HelpModalOpen = false" 
+              class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 rounded-full font-bold text-sm cursor-pointer transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+          
+          <div class="p-6 space-y-4 text-xs text-slate-600 leading-relaxed overflow-y-auto max-h-[70vh]">
+            <p>
+              El coeficiente estructural <strong>a₁</strong> de la superficie de concreto asfáltico se correlaciona con su Módulo Elástico (E<sub>AC</sub>) a 68°F (20°C).
+            </p>
+            <p class="text-[10px] text-slate-500 italic">Basado en la Figura IV.3 de la Guía AASHTO 1993.</p>
+
+            <div class="border border-slate-100 rounded-xl bg-white p-3 relative select-none shadow-sm">
+              <div class="flex justify-between text-[8px] font-bold text-slate-400 mb-1 px-1 uppercase tracking-widest">
+                <span>100k psi</span>
+                <span>Módulo E_AC</span>
+                <span>500k psi</span>
+              </div>
+              <svg 
+                ref="svgGraphA1"
+                viewBox="0 0 300 150" 
+                class="w-full h-auto cursor-crosshair overflow-visible touch-none"
+                @mousedown="isDraggingGraph = true; handleGraphMove($event)"
+                @mousemove="isDraggingGraph && handleGraphMove($event)"
+                @mouseup="isDraggingGraph = false"
+                @mouseleave="isDraggingGraph = false"
+                @touchstart.prevent="isDraggingGraph = true; handleGraphMove($event)"
+                @touchmove.prevent="isDraggingGraph && handleGraphMove($event)"
+                @touchend.prevent="isDraggingGraph = false"
+              >
+                <!-- Grid Lines -->
+                <line x1="0" y1="30" x2="300" y2="30" stroke="#f1f5f9" stroke-width="1"/>
+                <line x1="0" y1="60" x2="300" y2="60" stroke="#f1f5f9" stroke-width="1"/>
+                <line x1="0" y1="90" x2="300" y2="90" stroke="#f1f5f9" stroke-width="1"/>
+                <line x1="0" y1="120" x2="300" y2="120" stroke="#f1f5f9" stroke-width="1"/>
+                
+                <line x1="75" y1="0" x2="75" y2="150" stroke="#f1f5f9" stroke-width="1"/>
+                <line x1="150" y1="0" x2="150" y2="150" stroke="#f1f5f9" stroke-width="1"/>
+                <line x1="225" y1="0" x2="225" y2="150" stroke="#f1f5f9" stroke-width="1"/>
+
+                <!-- AASHTO Curve -->
+                <polyline :points="a1CurvePoints" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+                
+                <!-- Definition for Gradient -->
+                <defs>
+                  <linearGradient id="gradient-a1" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#4f46e5" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="#4f46e5" stop-opacity="0.0"/>
+                  </linearGradient>
+                </defs>
+
+                <!-- Active area under curve -->
+                <polygon :points="`0,150 ${a1CurvePoints} 300,150`" fill="url(#gradient-a1)"/>
+                
+                <!-- Current User Selection -->
+                <line :x1="userPointA1.sx" y1="150" :x2="userPointA1.sx" :y2="userPointA1.sy" stroke="#4f46e5" stroke-width="1.5" stroke-dasharray="3,3" />
+                <line x1="0" :y1="userPointA1.sy" :x2="userPointA1.sx" :y2="userPointA1.sy" stroke="#4f46e5" stroke-width="1.5" stroke-dasharray="3,3" />
+                
+                <!-- User Point -->
+                <circle :cx="userPointA1.sx" :cy="userPointA1.sy" r="4.5" fill="#4f46e5" stroke="white" stroke-width="1.5" class="shadow-sm transition-transform hover:scale-110" />
+                
+                <!-- Floating tooltip on graph -->
+                <g :transform="`translate(${userPointA1.sx < 150 ? userPointA1.sx + 8 : userPointA1.sx - 85}, ${Math.max(0, userPointA1.sy - 15)})`" class="pointer-events-none">
+                  <rect x="0" y="0" width="80" height="32" rx="4" fill="#1e293b" opacity="0.95" />
+                  <text x="40" y="13" fill="white" font-size="10" font-family="monospace" text-anchor="middle" font-weight="bold">a₁: {{ estimatedA1.toFixed(3) }}</text>
+                  <text x="40" y="24" fill="#94a3b8" font-size="8" font-family="monospace" text-anchor="middle">{{ (calcEac/1000).toFixed(0) }}k psi</text>
+                </g>
+
+                <!-- Y-Axis labels inside SVG -->
+                <text x="5" y="10" fill="#cbd5e1" font-size="8" font-family="sans-serif">0.5</text>
+                <text x="5" y="145" fill="#cbd5e1" font-size="8" font-family="sans-serif">0.0</text>
+              </svg>
+            </div>
+
+            <div class="p-3 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-between gap-3 shadow-sm">
+              <div class="flex-1">
+                <label class="field-label text-[9px] mb-0.5 text-indigo-900/80">Módulo E<sub>AC</sub> (psi)</label>
+                <input v-model.number="calcEac" type="number" step="10000" class="field-input font-mono w-full text-xs py-1.5 px-2 border-indigo-200/60 shadow-inner" placeholder="Ej: 400000" />
+              </div>
+
+              <div class="flex flex-col items-center justify-center bg-white px-3 py-1.5 rounded-lg border border-indigo-100 shadow-sm">
+                <span class="text-[8px] font-bold text-indigo-800/60 uppercase tracking-wider block mb-0.5">a₁ Estimado</span>
+                <span class="text-base font-bold text-indigo-600 font-mono leading-none">{{ estimatedA1.toFixed(3) }}</span>
+              </div>
+              
+              <button 
+                @click="applyEstimatedA1"
+                class="px-4 py-2 h-full bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition-colors shadow-sm active:scale-95 text-[10px] flex items-center justify-center whitespace-nowrap self-stretch"
+              >
+                Aplicar
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </Transition>
+    <!-- Modal de Guía a2 (Base Granular) -->
+    <Transition name="modal-fade">
+      <div v-if="isA2HelpModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div @click.stop class="bg-white rounded-2xl border border-slate-100 shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
+          <div class="px-6 py-4 bg-stone-50 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
+              Estimación de a₂ (Base Granular)
+            </h3>
+            <button 
+              @click="isA2HelpModalOpen = false" 
+              class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 rounded-full font-bold text-sm cursor-pointer transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+          
+          <div class="p-6 space-y-4 text-xs text-slate-600 leading-relaxed overflow-y-auto max-h-[70vh]">
+            <p>
+              El coeficiente estructural <strong>a₂</strong> de la capa base granular se estima a partir de su Módulo Resiliente (E<sub>SB</sub> o M<sub>R</sub>).
+            </p>
+            <p class="text-[10px] text-slate-500 italic">Basado en la Figura IV.4 de la Guía AASHTO 1993.</p>
+
+            <div class="p-2 bg-stone-100 rounded-lg text-[10px] text-center font-mono text-stone-600 border border-stone-200 shadow-inner">
+              a₂ = 0.249 · log₁₀(M<sub>R</sub>) - 0.977
+            </div>
+
+            <div class="border border-slate-100 rounded-xl bg-white p-3 relative select-none shadow-sm">
+              <div class="flex justify-between text-[8px] font-bold text-slate-400 mb-2 px-1 uppercase tracking-widest text-center">
+                <span>Ábaco de Alineación - Desliza verticalmente</span>
+              </div>
+              <svg 
+                ref="svgGraphA2"
+                viewBox="0 0 300 150" 
+                class="w-full h-auto cursor-ns-resize overflow-visible touch-none"
+                @mousedown="isDraggingGraphA2 = true; handleGraphMoveA2($event)"
+                @mousemove="isDraggingGraphA2 && handleGraphMoveA2($event)"
+                @mouseup="isDraggingGraphA2 = false"
+                @mouseleave="isDraggingGraphA2 = false"
+                @touchstart.prevent="isDraggingGraphA2 = true; handleGraphMoveA2($event)"
+                @touchmove.prevent="isDraggingGraphA2 && handleGraphMoveA2($event)"
+                @touchend.prevent="isDraggingGraphA2 = false"
+              >
+                <!-- Background -->
+                <rect x="0" y="0" width="300" height="150" fill="#fafaf9" rx="6" />
+
+                <!-- Vertical Scale Lines -->
+                <!-- 1. a2 -->
+                <line x1="40" y1="20" x2="40" y2="130" stroke="#78716c" stroke-width="1.5" />
+                <text x="40" y="12" fill="#57534e" font-size="7" font-family="sans-serif" text-anchor="middle" font-weight="bold">a₂</text>
+                <path d="M36 20 L40 20 M36 34.6 L40 34.6 M36 49.3 L40 49.3 M36 64 L40 64 M36 78.6 L40 78.6 M36 93.3 L40 93.3 M36 108 L40 108 M36 122.6 L40 122.6 M36 130 L40 130" stroke="#78716c" stroke-width="1" />
+                <text x="34" y="22" fill="#78716c" font-size="6" text-anchor="end">0.20</text>
+                <text x="34" y="66" fill="#78716c" font-size="6" text-anchor="end">0.14</text>
+                <text x="34" y="95" fill="#78716c" font-size="6" text-anchor="end">0.10</text>
+                <text x="34" y="125" fill="#78716c" font-size="6" text-anchor="end">0.06</text>
+
+                <!-- 2. CBR -->
+                <line x1="95" y1="20" x2="95" y2="130" stroke="#78716c" stroke-width="1.5" />
+                <text x="95" y="12" fill="#57534e" font-size="7" font-family="sans-serif" text-anchor="middle" font-weight="bold">CBR</text>
+                <path d="M91 64 L95 64 M91 84.5 L95 84.5 M91 111.6 L95 111.6" stroke="#78716c" stroke-width="1" />
+                <text x="89" y="66" fill="#78716c" font-size="6" text-anchor="end">100</text>
+                <text x="89" y="86.5" fill="#78716c" font-size="6" text-anchor="end">50</text>
+                <text x="89" y="113.6" fill="#78716c" font-size="6" text-anchor="end">20</text>
+
+                <!-- 3. R-Value -->
+                <line x1="150" y1="20" x2="150" y2="130" stroke="#78716c" stroke-width="1.5" />
+                <text x="150" y="12" fill="#57534e" font-size="7" font-family="sans-serif" text-anchor="middle" font-weight="bold">Valor R</text>
+                <path d="M146 64 L150 64 M146 95 L150 95 M146 115 L150 115" stroke="#78716c" stroke-width="1" />
+                <text x="144" y="66" fill="#78716c" font-size="6" text-anchor="end">85</text>
+                <text x="144" y="97" fill="#78716c" font-size="6" text-anchor="end">70</text>
+                <text x="144" y="117" fill="#78716c" font-size="6" text-anchor="end">50</text>
+
+                <!-- 4. Texas Triax -->
+                <line x1="205" y1="20" x2="205" y2="130" stroke="#78716c" stroke-width="1.5" />
+                <text x="205" y="12" fill="#57534e" font-size="7" font-family="sans-serif" text-anchor="middle" font-weight="bold">Texas T.</text>
+                <path d="M201 64 L205 64 M201 95 L205 95 M201 115 L205 115" stroke="#78716c" stroke-width="1" />
+                <text x="199" y="66" fill="#78716c" font-size="6" text-anchor="end">2.0</text>
+                <text x="199" y="97" fill="#78716c" font-size="6" text-anchor="end">2.5</text>
+                <text x="199" y="117" fill="#78716c" font-size="6" text-anchor="end">4.0</text>
+
+                <!-- 5. MR -->
+                <line x1="260" y1="20" x2="260" y2="130" stroke="#78716c" stroke-width="1.5" />
+                <text x="260" y="12" fill="#57534e" font-size="7" font-family="sans-serif" text-anchor="middle" font-weight="bold">M_R (x10³)</text>
+                <path d="M260 42.7 L264 42.7 M260 65.4 L264 65.4 M260 97.7 L264 97.7 M260 120.4 L264 120.4" stroke="#78716c" stroke-width="1" />
+                <text x="267" y="44.7" fill="#78716c" font-size="6" text-anchor="start">40</text>
+                <text x="267" y="67.4" fill="#78716c" font-size="6" text-anchor="start">30</text>
+                <text x="267" y="99.7" fill="#78716c" font-size="6" text-anchor="start">20</text>
+                <text x="267" y="122.4" fill="#78716c" font-size="6" text-anchor="start">15</text>
+
+                <!-- Horizontal Indicator Line -->
+                <line x1="20" :y1="nomographY" x2="280" :y2="nomographY" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,2" />
+                <circle cx="40" :cy="nomographY" r="3" fill="#dc2626" />
+                <circle cx="260" :cy="nomographY" r="3" fill="#dc2626" />
+                
+                <!-- Dynamic Values -->
+                <text x="280" :y="nomographY - 4" fill="#dc2626" font-size="8" font-family="monospace" font-weight="bold" text-anchor="end">{{ (calcMrBase/1000).toFixed(1) }}k</text>
+                <text x="100" :y="nomographY - 4" fill="#dc2626" font-size="8" font-family="monospace" font-weight="bold" text-anchor="start">{{ calcCbrBase }}</text>
+                <text x="20" :y="nomographY - 4" fill="#dc2626" font-size="8" font-family="monospace" font-weight="bold" text-anchor="start">{{ estimatedA2.toFixed(3) }}</text>
+              </svg>
+            </div>
+
+            <div class="p-3 bg-stone-50 border border-stone-100 rounded-xl flex items-center justify-between gap-3 shadow-sm">
+              <div class="flex-1">
+                <label class="field-label text-[9px] mb-0.5 text-stone-700">Módulo M<sub>R</sub> (psi)</label>
+                <input v-model.number="calcMrBase" type="number" step="1000" class="field-input font-mono w-full text-xs py-1.5 px-2 border-stone-200/60 shadow-inner" placeholder="Ej: 30000" />
+              </div>
+
+              <div class="flex-1">
+                <label class="field-label text-[9px] mb-0.5 text-stone-700">CBR (%)</label>
+                <input v-model.number="calcCbrBase" type="number" step="1" class="field-input font-mono w-full text-xs py-1.5 px-2 border-stone-200/60 shadow-inner" placeholder="Ej: 100" />
+              </div>
+
+              <div class="flex flex-col items-center justify-center bg-white px-3 py-1.5 rounded-lg border border-stone-100 shadow-sm">
+                <span class="text-[8px] font-bold text-stone-500 uppercase tracking-wider block mb-0.5">a₂ Estimado</span>
+                <span class="text-base font-bold text-stone-600 font-mono leading-none">{{ estimatedA2.toFixed(3) }}</span>
+              </div>
+              
+              <button 
+                @click="applyEstimatedA2"
+                class="px-4 py-2 h-full bg-stone-600 text-white rounded-lg font-bold hover:bg-stone-700 transition-colors shadow-sm active:scale-95 text-[10px] flex items-center justify-center whitespace-nowrap self-stretch"
+              >
+                Aplicar
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Modal de Guía a3 (Sub-base Granular) -->
+    <Transition name="modal-fade">
+      <div v-if="isA3HelpModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div @click.stop class="bg-white rounded-2xl border border-slate-100 shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
+          <div class="px-6 py-4 bg-amber-50/50 border-b border-amber-100/50 flex items-center justify-between">
+            <h3 class="text-xs font-bold text-amber-900 uppercase tracking-wider">
+              Estimación de a₃ (Sub-base Granular)
+            </h3>
+            <button 
+              @click="isA3HelpModalOpen = false" 
+              class="w-6 h-6 flex items-center justify-center text-amber-600/50 hover:text-amber-700 hover:bg-amber-100 rounded-full font-bold text-sm cursor-pointer transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+          
+          <div class="p-6 space-y-4 text-xs text-slate-600 leading-relaxed overflow-y-auto max-h-[70vh]">
+            <p>
+              El coeficiente estructural <strong>a₃</strong> de la sub-base granular se estima a partir de su Módulo Resiliente (E<sub>SB</sub> o M<sub>R</sub>) o ensayos de resistencia.
+            </p>
+            <p class="text-[10px] text-slate-500 italic">Basado en la Figura IV.5 de la Guía AASHTO 1993.</p>
+
+            <div class="p-2 bg-amber-100/50 rounded-lg text-[10px] text-center font-mono text-amber-800/80 border border-amber-200/50 shadow-inner">
+              a₃ = 0.227 · log₁₀(M<sub>R</sub>) - 0.839
+            </div>
+
+            <div class="border border-slate-100 rounded-xl bg-white p-3 relative select-none shadow-sm">
+              <div class="flex justify-between text-[8px] font-bold text-amber-600/60 mb-2 px-1 uppercase tracking-widest text-center">
+                <span>Ábaco de Alineación - Desliza verticalmente</span>
+              </div>
+              <svg 
+                ref="svgGraphA3"
+                viewBox="0 0 300 150" 
+                class="w-full h-auto cursor-ns-resize overflow-visible touch-none"
+                @mousedown="isDraggingGraphA3 = true; handleGraphMoveA3($event)"
+                @mousemove="isDraggingGraphA3 && handleGraphMoveA3($event)"
+                @mouseup="isDraggingGraphA3 = false"
+                @mouseleave="isDraggingGraphA3 = false"
+                @touchstart.prevent="isDraggingGraphA3 = true; handleGraphMoveA3($event)"
+                @touchmove.prevent="isDraggingGraphA3 && handleGraphMoveA3($event)"
+                @touchend.prevent="isDraggingGraphA3 = false"
+              >
+                <rect x="0" y="0" width="300" height="150" fill="#fffbeb" rx="6" />
+
+                <!-- Vertical Scale Lines -->
+                <!-- 1. a3 -->
+                <line x1="40" y1="20" x2="40" y2="130" stroke="#b45309" stroke-width="1.5" />
+                <text x="40" y="12" fill="#92400e" font-size="7" font-family="sans-serif" text-anchor="middle" font-weight="bold">a₃</text>
+                <path d="M36 31 L40 31 M36 53 L40 53 M36 75 L40 75 M36 97 L40 97 M36 119 L40 119" stroke="#b45309" stroke-width="1" />
+                <text x="34" y="33" fill="#b45309" font-size="6" text-anchor="end">0.14</text>
+                <text x="34" y="55" fill="#b45309" font-size="6" text-anchor="end">0.12</text>
+                <text x="34" y="77" fill="#b45309" font-size="6" text-anchor="end">0.10</text>
+                <text x="34" y="99" fill="#b45309" font-size="6" text-anchor="end">0.08</text>
+                <text x="34" y="121" fill="#b45309" font-size="6" text-anchor="end">0.06</text>
+
+                <!-- 2. CBR -->
+                <line x1="95" y1="20" x2="95" y2="130" stroke="#b45309" stroke-width="1.5" />
+                <text x="95" y="12" fill="#92400e" font-size="7" font-family="sans-serif" text-anchor="middle" font-weight="bold">CBR</text>
+                <path d="M91 31 L95 31 M91 52 L95 52 M91 66 L95 66 M91 78 L95 78 M91 99 L95 99 M91 119 L95 119" stroke="#b45309" stroke-width="1" />
+                <text x="89" y="33" fill="#b45309" font-size="6" text-anchor="end">100</text>
+                <text x="89" y="54" fill="#b45309" font-size="6" text-anchor="end">50</text>
+                <text x="89" y="68" fill="#b45309" font-size="6" text-anchor="end">30</text>
+                <text x="89" y="80" fill="#b45309" font-size="6" text-anchor="end">20</text>
+                <text x="89" y="101" fill="#b45309" font-size="6" text-anchor="end">10</text>
+                <text x="89" y="121" fill="#b45309" font-size="6" text-anchor="end">5</text>
+
+                <!-- 3. R-Value -->
+                <line x1="150" y1="20" x2="150" y2="130" stroke="#b45309" stroke-width="1.5" />
+                <text x="150" y="12" fill="#92400e" font-size="7" font-family="sans-serif" text-anchor="middle" font-weight="bold">Valor R</text>
+                <path d="M146 31 L150 31 M146 53 L150 53 M146 75 L150 75 M146 97 L150 97 M146 119 L150 119" stroke="#b45309" stroke-width="1" />
+                <text x="144" y="33" fill="#b45309" font-size="6" text-anchor="end">90</text>
+                <text x="144" y="55" fill="#b45309" font-size="6" text-anchor="end">70</text>
+                <text x="144" y="77" fill="#b45309" font-size="6" text-anchor="end">60</text>
+                <text x="144" y="99" fill="#b45309" font-size="6" text-anchor="end">50</text>
+                <text x="144" y="121" fill="#b45309" font-size="6" text-anchor="end">30</text>
+
+                <!-- 4. Texas Triax -->
+                <line x1="205" y1="20" x2="205" y2="130" stroke="#b45309" stroke-width="1.5" />
+                <text x="205" y="12" fill="#92400e" font-size="7" font-family="sans-serif" text-anchor="middle" font-weight="bold">Texas T.</text>
+                <path d="M201 31 L205 31 M201 56 L205 56 M201 91 L205 91 M201 121 L205 121" stroke="#b45309" stroke-width="1" />
+                <text x="199" y="33" fill="#b45309" font-size="6" text-anchor="end">2.0</text>
+                <text x="199" y="58" fill="#b45309" font-size="6" text-anchor="end">3.0</text>
+                <text x="199" y="93" fill="#b45309" font-size="6" text-anchor="end">4.0</text>
+                <text x="199" y="123" fill="#b45309" font-size="6" text-anchor="end">5.0</text>
+
+                <!-- 5. MR -->
+                <line x1="260" y1="20" x2="260" y2="130" stroke="#b45309" stroke-width="1.5" />
+                <text x="260" y="12" fill="#92400e" font-size="7" font-family="sans-serif" text-anchor="middle" font-weight="bold">M_R (x10³)</text>
+                <path d="M260 10.1 L264 10.1 M260 34.3 L264 34.3 M260 65.1 L264 65.1 M260 109.1 L264 109.1" stroke="#b45309" stroke-width="1" />
+                <text x="267" y="12.1" fill="#b45309" font-size="6" text-anchor="start">25</text>
+                <text x="267" y="36.3" fill="#b45309" font-size="6" text-anchor="start">20</text>
+                <text x="267" y="67.1" fill="#b45309" font-size="6" text-anchor="start">15</text>
+                <text x="267" y="111.1" fill="#b45309" font-size="6" text-anchor="start">10</text>
+
+                <!-- Horizontal Indicator Line -->
+                <line x1="20" :y1="nomographYA3" x2="280" :y2="nomographYA3" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,2" />
+                <circle cx="40" :cy="nomographYA3" r="3" fill="#d97706" />
+                <circle cx="260" :cy="nomographYA3" r="3" fill="#d97706" />
+                
+                <!-- Dynamic Values -->
+                <text x="280" :y="nomographYA3 - 4" fill="#d97706" font-size="8" font-family="monospace" font-weight="bold" text-anchor="end">{{ (calcMrSubBase/1000).toFixed(1) }}k</text>
+                <text x="100" :y="nomographYA3 - 4" fill="#d97706" font-size="8" font-family="monospace" font-weight="bold" text-anchor="start">{{ calcCbrSubBase }}</text>
+                <text x="20" :y="nomographYA3 - 4" fill="#d97706" font-size="8" font-family="monospace" font-weight="bold" text-anchor="start">{{ estimatedA3.toFixed(3) }}</text>
+              </svg>
+            </div>
+
+            <div class="p-3 bg-amber-50 border border-amber-100 rounded-xl flex items-center justify-between gap-3 shadow-sm">
+              <div class="flex-1">
+                <label class="field-label text-[9px] mb-0.5 text-amber-800">Módulo M<sub>R</sub> (psi)</label>
+                <input v-model.number="calcMrSubBase" type="number" step="1000" class="field-input font-mono w-full text-xs py-1.5 px-2 border-amber-200/60 shadow-inner" placeholder="Ej: 15000" />
+              </div>
+
+              <div class="flex-1">
+                <label class="field-label text-[9px] mb-0.5 text-amber-800">CBR (%)</label>
+                <input v-model.number="calcCbrSubBase" type="number" step="1" class="field-input font-mono w-full text-xs py-1.5 px-2 border-amber-200/60 shadow-inner" placeholder="Ej: 50" />
+              </div>
+
+              <div class="flex flex-col items-center justify-center bg-white px-3 py-1.5 rounded-lg border border-amber-100 shadow-sm">
+                <span class="text-[8px] font-bold text-amber-600 uppercase tracking-wider block mb-0.5">a₃ Estimado</span>
+                <span class="text-base font-bold text-amber-600 font-mono leading-none">{{ estimatedA3.toFixed(3) }}</span>
+              </div>
+              
+              <button 
+                @click="applyEstimatedA3"
+                class="px-4 py-2 h-full bg-amber-600 text-white rounded-lg font-bold hover:bg-amber-700 transition-colors shadow-sm active:scale-95 text-[10px] flex items-center justify-center whitespace-nowrap self-stretch"
+              >
+                Aplicar
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Modal de Guía Subrasante (Mr) -->
+    <Transition name="modal-fade">
+      <div v-if="isMrHelpModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div @click.stop class="bg-white rounded-2xl border border-slate-100 shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
+          <div class="px-6 py-4 bg-emerald-50/50 border-b border-emerald-100/50 flex items-center justify-between">
+            <h3 class="text-xs font-bold text-emerald-900 uppercase tracking-wider">
+              Estimación de Módulo Resiliente (Subrasante)
+            </h3>
+            <button 
+              @click="isMrHelpModalOpen = false" 
+              class="w-6 h-6 flex items-center justify-center text-emerald-600/50 hover:text-emerald-700 hover:bg-emerald-100 rounded-full font-bold text-sm cursor-pointer transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+          
+          <div class="p-6 space-y-4 text-xs text-slate-600 leading-relaxed overflow-y-auto max-h-[70vh]">
+            <p>
+              El <strong>Módulo Resiliente (M<sub>R</sub>)</strong> de la subrasante puede estimarse a partir del CBR mediante dos ecuaciones empíricas documentadas en manuales AASHTO.
+            </p>
+
+            <div class="space-y-3">
+              <div>
+                <label class="field-label text-[10px] mb-1 text-emerald-800">CBR de la Subrasante (%)</label>
+                <input v-model.number="calcCbrMr" type="number" step="0.5" class="field-input font-mono w-full text-sm py-2 px-3 border-emerald-200/60 shadow-inner bg-emerald-50/30 text-emerald-900 font-bold" placeholder="Ej: 5" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mt-4">
+              <!-- Opción 1: Clásica -->
+              <div class="border rounded-xl p-3 flex flex-col justify-between" :class="calcCbrMr <= 10 && calcCbrMr > 0 ? 'border-emerald-400 bg-emerald-50/50 shadow-sm relative' : 'border-slate-200 bg-slate-50 opacity-70'">
+                <div v-if="calcCbrMr <= 10 && calcCbrMr > 0" class="absolute -top-2 -right-2 bg-emerald-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md uppercase shadow-sm">Recomendada</div>
+                <div>
+                  <h4 class="font-bold text-[10px] text-slate-800 mb-1">Ecuación Clásica</h4>
+                  <p class="text-[9px] text-slate-500 mb-2 leading-tight">Ideal para suelos finos (CBR ≤ 10).</p>
+                  <div class="p-1.5 bg-white rounded border border-slate-100 text-[9px] text-center font-mono text-slate-600 mb-2">
+                    M<sub>R</sub> = 1,500 · CBR
+                  </div>
+                </div>
+                <div class="flex items-end justify-between mt-2">
+                  <div>
+                    <span class="text-[8px] font-bold text-slate-400 uppercase block leading-none mb-1">Resultado</span>
+                    <span class="font-mono font-bold text-sm leading-none block" :class="calcCbrMr <= 10 && calcCbrMr > 0 ? 'text-emerald-700' : 'text-slate-600'">{{ calcCbrMr ? Math.round(calcCbrMr * 1500).toLocaleString('en-US') : 0 }} <span class="text-[9px] font-normal">psi</span></span>
+                  </div>
+                  <button @click="applyMr(Math.round(calcCbrMr * 1500))" :disabled="!calcCbrMr" class="px-2 py-1 text-[9px] font-bold rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" :class="calcCbrMr <= 10 && calcCbrMr > 0 ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'">Aplicar</button>
+                </div>
+              </div>
+
+              <!-- Opción 2: TRL -->
+              <div class="border rounded-xl p-3 flex flex-col justify-between" :class="calcCbrMr > 10 ? 'border-emerald-400 bg-emerald-50/50 shadow-sm relative' : 'border-slate-200 bg-slate-50 opacity-70'">
+                <div v-if="calcCbrMr > 10" class="absolute -top-2 -right-2 bg-emerald-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md uppercase shadow-sm">Recomendada</div>
+                <div>
+                  <h4 class="font-bold text-[10px] text-slate-800 mb-1">Modelo No Lineal</h4>
+                  <p class="text-[9px] text-slate-500 mb-2 leading-tight">Ideal para granulares (CBR > 10).</p>
+                  <div class="p-1.5 bg-white rounded border border-slate-100 text-[9px] text-center font-mono text-slate-600 mb-2">
+                    M<sub>R</sub> = 2,555 · CBR<sup>0.64</sup>
+                  </div>
+                </div>
+                <div class="flex items-end justify-between mt-2">
+                  <div>
+                    <span class="text-[8px] font-bold text-slate-400 uppercase block leading-none mb-1">Resultado</span>
+                    <span class="font-mono font-bold text-sm leading-none block" :class="calcCbrMr > 10 ? 'text-emerald-700' : 'text-slate-600'">{{ calcCbrMr ? Math.round(2555 * Math.pow(calcCbrMr, 0.64)).toLocaleString('en-US') : 0 }} <span class="text-[9px] font-normal">psi</span></span>
+                  </div>
+                  <button @click="applyMr(Math.round(2555 * Math.pow(calcCbrMr, 0.64)))" :disabled="!calcCbrMr" class="px-2 py-1 text-[9px] font-bold rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" :class="calcCbrMr > 10 ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'">Aplicar</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Modal de Guía Drenaje (m2, m3) -->
+    <Transition name="modal-fade">
+      <div v-if="isDrainageHelpModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div @click.stop class="bg-white rounded-2xl border border-slate-100 shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
+          <div class="px-6 py-4 bg-blue-50/50 border-b border-blue-100/50 flex items-center justify-between">
+            <h3 class="text-xs font-bold text-blue-900 uppercase tracking-wider">
+              Estimación de Drenaje ({{ currentDrainageParam === 'm2' ? 'm₂ - Base' : 'm₃ - Sub-base' }})
+            </h3>
+            <button 
+              @click="isDrainageHelpModalOpen = false" 
+              class="w-6 h-6 flex items-center justify-center text-blue-600/50 hover:text-blue-700 hover:bg-blue-100 rounded-full font-bold text-sm cursor-pointer transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+          
+          <div class="p-6 space-y-4 text-xs text-slate-600 leading-relaxed overflow-y-auto max-h-[70vh]">
+            <p>
+              El coeficiente de drenaje (<strong>{{ currentDrainageParam === 'm2' ? 'm₂' : 'm₃' }}</strong>) modifica el aporte estructural de las capas granulares según la eficiencia con la que el agua drena del pavimento.
+            </p>
+            <p class="text-[10px] text-slate-500 italic">Basado en las Tablas IV.6 y IV.7 de la Guía AASHTO 1993.</p>
+
+            <div class="space-y-4 p-3 bg-blue-50/50 rounded-xl border border-blue-100 shadow-sm">
+              <!-- Calidad -->
+              <div>
+                <label class="text-[9px] font-bold text-blue-800 uppercase block mb-2">Calidad del Drenaje</label>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  <label v-for="(desc, q) in {'Excelente': '2 horas', 'Bueno': '1 día', 'Regular': '1 semana', 'Malo': '1 mes', 'Muy malo': 'No drena'}" :key="q" class="flex items-center gap-2 p-1.5 border rounded-lg cursor-pointer transition-colors" :class="calcDrainageQuality === q ? 'bg-blue-50 border-blue-300 shadow-sm' : 'bg-white border-slate-200 hover:bg-slate-50'">
+                    <input type="radio" v-model="calcDrainageQuality" :value="q" class="text-blue-600 focus:ring-blue-500 w-3 h-3" />
+                    <div class="flex flex-col">
+                      <span class="font-bold text-slate-700 text-[10px] leading-tight">{{ q }}</span>
+                      <span class="text-[8px] text-slate-500 leading-none mt-0.5">{{ desc }}</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Días de lluvia -->
+              <div>
+                <label class="text-[9px] font-bold text-blue-800 uppercase block mb-1">Días Lluviosos / Año</label>
+                <div class="relative w-full sm:w-1/2">
+                  <input type="number" v-model.number="drainageRainyDays" min="0" max="365" class="w-full font-mono text-xs px-2 py-1.5 border border-blue-200 rounded text-blue-900 font-bold bg-white focus:ring-1 focus:ring-blue-500 pr-16 shadow-inner" placeholder="Ej: 30" />
+                  <span class="absolute right-2 top-1.5 text-xs text-blue-400 font-mono pointer-events-none">días</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-4">
+              <div class="overflow-hidden rounded-xl border border-blue-100 shadow-sm">
+                <table class="w-full text-center border-collapse">
+                  <thead>
+                    <tr class="bg-blue-50/80 border-b border-blue-100">
+                      <th rowspan="2" class="p-2 text-[9px] text-blue-900 border-r border-blue-100 font-bold align-middle w-[28%] leading-tight">Calidad de<br/>Drenaje</th>
+                      <th colspan="4" class="p-1.5 text-[9px] text-blue-800 border-b border-blue-100 font-bold">% Tiempo próximo a saturación</th>
+                    </tr>
+                    <tr class="bg-blue-50/40">
+                      <th v-for="exp in ['<1%', '1-5%', '5-25%', '>25%']" :key="exp" class="p-1 text-[8px] font-semibold text-blue-700 border-r border-blue-100 last:border-0">{{ exp }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(row, q) in drainageMatrix" :key="q" class="border-b border-blue-50 last:border-0">
+                      <td class="p-1.5 text-[9px] font-bold text-slate-600 bg-slate-50 border-r border-blue-50 leading-tight">
+                        {{ q }}
+                        <span class="block text-[7px] text-slate-400 font-normal mt-0.5">{{ {'Excelente':'2 horas','Bueno':'1 día','Regular':'1 semana','Malo':'1 mes','Muy malo':'No drena'}[q] }}</span>
+                      </td>
+                      <td v-for="(range, exp) in row" :key="exp" 
+                          @click="handleDrainageCellClick(q, exp)"
+                          class="p-1 text-[9px] font-mono cursor-pointer transition-colors border-r border-blue-50 last:border-0 select-none"
+                          :class="(calcDrainageQuality === q && calcDrainageExposure === exp) ? 'bg-blue-600 text-white shadow-inner font-bold scale-[1.02]' : 'bg-white text-slate-600 hover:bg-blue-50'"
+                      >
+                        {{ range[0] === range[1] ? range[0].toFixed(2) : Math.max(range[0], range[1]).toFixed(2) + ' - ' + Math.min(range[0], range[1]).toFixed(2) }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Compact Rango y Slider -->
+              <div class="p-2 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3 shadow-sm">
+                <div class="flex-1 flex flex-col justify-center">
+                  <div class="flex justify-between text-[8px] text-slate-400 font-mono mb-1 px-1">
+                    <span>{{ Math.min(drainageRange[0], drainageRange[1]).toFixed(2) }}</span>
+                    <span>{{ Math.max(drainageRange[0], drainageRange[1]).toFixed(2) }}</span>
+                  </div>
+                  <input type="range" v-model.number="estimatedDrainageValue" :min="Math.min(drainageRange[0], drainageRange[1])" :max="Math.max(drainageRange[0], drainageRange[1])" step="0.01" class="w-full accent-blue-600 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer" />
+                </div>
+                
+                <div class="flex items-center gap-2 border-l border-slate-200 pl-3">
+                  <div class="flex flex-col">
+                    <span class="text-[8px] font-bold text-slate-400 uppercase leading-none mb-1">Ajuste</span>
+                    <input type="number" step="0.01" v-model.number="estimatedDrainageValue" class="font-mono w-14 text-xs py-1 px-1.5 border border-slate-200/60 rounded text-blue-900 font-bold bg-white text-center shadow-inner" />
+                  </div>
+                  <button @click="applyDrainage" class="px-3 py-1.5 h-full bg-blue-600 text-white rounded font-bold hover:bg-blue-700 transition-colors shadow-sm text-[10px]">
+                    Aplicar
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup>
+import katex from 'katex'
+import { jsPDF } from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import html2canvas from 'html2canvas'
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import Sidebar from '@/components/layout/Sidebar.vue'
 import TopBar  from '@/components/layout/TopBar.vue'
@@ -675,6 +1481,394 @@ const applyServPresets = (pi, pt) => {
   s.pi = pi
   s.pt = pt
   isServHelpModalOpen.value = false
+}
+
+// --- Calculadora de a1 (Carpeta Asfáltica) ---
+const isA1HelpModalOpen = ref(false)
+const calcEac = ref(400000)
+const svgGraphA1 = ref(null)
+const isDraggingGraph = ref(false)
+
+const estimatedA1 = computed(() => {
+  if (!calcEac.value || calcEac.value <= 0) return 0
+  const a1 = 0.171 * Math.log(calcEac.value) - 1.784
+  return Math.max(0, Math.min(0.5, a1))
+})
+
+const a1CurvePoints = computed(() => {
+  let pts = []
+  for(let x = 100000; x <= 500000; x += 10000) {
+    const y = 0.171 * Math.log(x) - 1.784
+    const clampedY = Math.max(0, Math.min(0.5, y))
+    const sx = ((x - 100000) / 400000) * 300
+    const sy = 150 - (clampedY / 0.5) * 150
+    pts.push(`${sx},${sy}`)
+  }
+  return pts.join(' ')
+})
+
+const userPointA1 = computed(() => {
+  const x = Math.max(100000, Math.min(500000, calcEac.value))
+  const y = estimatedA1.value
+  const sx = ((x - 100000) / 400000) * 300
+  const sy = 150 - (y / 0.5) * 150
+  return { sx, sy }
+})
+
+const handleGraphMove = (e) => {
+  if (!svgGraphA1.value) return
+  const rect = svgGraphA1.value.getBoundingClientRect()
+  let clientX = e.clientX
+  if (e.touches && e.touches.length > 0) {
+    clientX = e.touches[0].clientX
+  }
+  if (clientX === undefined) return
+  
+  let x = clientX - rect.left
+  x = Math.max(0, Math.min(rect.width, x))
+  
+  const eac = 100000 + (x / rect.width) * 400000
+  calcEac.value = Math.round(eac / 1000) * 1000
+}
+
+const applyEstimatedA1 = () => {
+  s.a1 = parseFloat(estimatedA1.value.toFixed(3))
+  isA1HelpModalOpen.value = false
+}
+
+// --- Calculadora de a2 (Base Granular) ---
+const isA2HelpModalOpen = ref(false)
+const calcMrBase = ref(30000)
+const svgGraphA2 = ref(null)
+const isDraggingGraphA2 = ref(false)
+
+watch(isA2HelpModalOpen, (val) => {
+  if (val && s.Mr1) {
+    calcMrBase.value = Math.max(10000, Math.min(45000, s.Mr1))
+  }
+})
+
+const estimatedA2 = computed(() => {
+  if (!calcMrBase.value || calcMrBase.value <= 0) return 0
+  const a2 = 0.249 * Math.log10(calcMrBase.value) - 0.977
+  return Math.max(0, Math.min(0.25, a2))
+})
+
+const calcCbrBase = computed({
+  get: () => {
+    const a2 = estimatedA2.value
+    if (a2 <= 0) return 0
+    const cbr = Math.pow(10, (a2 + 0.046) / 0.093)
+    return Math.round(cbr)
+  },
+  set: (val) => {
+    if (!val || val <= 0) return
+    const a2 = 0.093 * Math.log10(val) - 0.046
+    const mr = Math.pow(10, (a2 + 0.977) / 0.249)
+    calcMrBase.value = Math.round(mr / 100) * 100
+  }
+})
+
+const nomographY = computed(() => {
+  const a2 = estimatedA2.value
+  const clampedA2 = Math.max(0.05, Math.min(0.20, a2))
+  return 20 + ((0.20 - clampedA2) / 0.15) * 110
+})
+
+const handleGraphMoveA2 = (e) => {
+  if (!svgGraphA2.value) return
+  const rect = svgGraphA2.value.getBoundingClientRect()
+  let clientY = e.clientY
+  if (e.touches && e.touches.length > 0) {
+    clientY = e.touches[0].clientY
+  }
+  if (clientY === undefined) return
+  
+  let y = clientY - rect.top
+  y = Math.max(20, Math.min(130, y))
+  
+  // y = 20 -> a2 = 0.20
+  // y = 130 -> a2 = 0.05
+  let a2 = 0.20 - ((y - 20) / 110) * 0.15
+  let mr = Math.pow(10, (a2 + 0.977) / 0.249)
+  
+  calcMrBase.value = Math.round(mr / 100) * 100
+}
+
+const applyEstimatedA2 = () => {
+  s.Mr1 = calcMrBase.value
+  s.a2 = parseFloat(estimatedA2.value.toFixed(3))
+  isA2HelpModalOpen.value = false
+}
+
+// --- Calculadora de a3 (Sub-base Granular) ---
+const isA3HelpModalOpen = ref(false)
+const calcMrSubBase = ref(15000)
+const svgGraphA3 = ref(null)
+const isDraggingGraphA3 = ref(false)
+
+watch(isA3HelpModalOpen, (val) => {
+  if (val && s.Mr2) {
+    calcMrSubBase.value = Math.max(8000, Math.min(25000, s.Mr2))
+  }
+})
+
+const estimatedA3 = computed(() => {
+  if (!calcMrSubBase.value || calcMrSubBase.value <= 0) return 0
+  const a3 = 0.227 * Math.log10(calcMrSubBase.value) - 0.839
+  return Math.max(0, Math.min(0.25, a3))
+})
+
+const calcCbrSubBase = computed({
+  get: () => {
+    const a3 = estimatedA3.value
+    if (a3 <= 0) return 0
+    // a3 = 0.0615 * log10(CBR) + 0.017
+    const cbr = Math.pow(10, (a3 - 0.017) / 0.0615)
+    return Math.round(cbr)
+  },
+  set: (val) => {
+    if (!val || val <= 0) return
+    const a3 = 0.0615 * Math.log10(val) + 0.017
+    const mr = Math.pow(10, (a3 + 0.839) / 0.227)
+    calcMrSubBase.value = Math.round(mr / 100) * 100
+  }
+})
+
+const nomographYA3 = computed(() => {
+  const a3 = estimatedA3.value
+  const clampedA3 = Math.max(0.04, Math.min(0.16, a3))
+  // a3 = 0.15 -> y=20, a3=0.05 -> y=130
+  return 20 + ((0.15 - clampedA3) / 0.10) * 110
+})
+
+const handleGraphMoveA3 = (e) => {
+  if (!svgGraphA3.value) return
+  const rect = svgGraphA3.value.getBoundingClientRect()
+  let clientY = e.clientY
+  if (e.touches && e.touches.length > 0) {
+    clientY = e.touches[0].clientY
+  }
+  if (clientY === undefined) return
+  
+  let y = clientY - rect.top
+  y = Math.max(20, Math.min(140, y))
+  
+  let a3 = 0.15 - ((y - 20) / 110) * 0.10
+  let mr = Math.pow(10, (a3 + 0.839) / 0.227)
+  
+  calcMrSubBase.value = Math.round(mr / 100) * 100
+}
+
+const applyEstimatedA3 = () => {
+  s.Mr2 = calcMrSubBase.value
+  s.a3 = parseFloat(estimatedA3.value.toFixed(3))
+  isA3HelpModalOpen.value = false
+}
+
+// --- Calculadora de Subrasante (Mr) ---
+const isMrHelpModalOpen = ref(false)
+const calcCbrMr = ref(5)
+
+const applyMr = (value) => {
+  if (value && value > 0) {
+    s.Mr3 = value
+    isMrHelpModalOpen.value = false
+  }
+}
+
+// --- Calculadora de Drenaje (m2, m3) ---
+const isDrainageHelpModalOpen = ref(false)
+const currentDrainageParam = ref('m2') // 'm2' o 'm3'
+const calcDrainageQuality = ref('Bueno')
+const calcDrainageExposure = ref('5-25%')
+
+const drainageExposureVal = ref(10)
+
+const drainageRainyDays = computed({
+  get: () => Math.round((drainageExposureVal.value / 100) * 365),
+  set: (val) => {
+    if (val >= 0 && val <= 365) {
+      drainageExposureVal.value = (val / 365) * 100
+    }
+  }
+})
+
+watch(drainageExposureVal, (val) => {
+  if (val < 1) calcDrainageExposure.value = '<1%'
+  else if (val <= 5) calcDrainageExposure.value = '1-5%'
+  else if (val <= 25) calcDrainageExposure.value = '5-25%'
+  else calcDrainageExposure.value = '>25%'
+}, { immediate: true })
+
+const handleDrainageCellClick = (q, exp) => {
+  calcDrainageQuality.value = q
+  if (calcDrainageExposure.value !== exp) {
+    if (exp === '<1%') drainageExposureVal.value = 0.5
+    if (exp === '1-5%') drainageExposureVal.value = 3
+    if (exp === '5-25%') drainageExposureVal.value = 15
+    if (exp === '>25%') drainageExposureVal.value = 30
+  }
+}
+
+const drainageMatrix = {
+  'Excelente': { '<1%': [1.40, 1.35], '1-5%': [1.35, 1.30], '5-25%': [1.30, 1.20], '>25%': [1.20, 1.20] },
+  'Bueno':     { '<1%': [1.35, 1.25], '1-5%': [1.25, 1.15], '5-25%': [1.15, 1.00], '>25%': [1.00, 1.00] },
+  'Regular':   { '<1%': [1.25, 1.15], '1-5%': [1.15, 1.05], '5-25%': [1.00, 0.80], '>25%': [0.80, 0.80] },
+  'Malo':      { '<1%': [1.15, 1.05], '1-5%': [1.05, 0.80], '5-25%': [0.80, 0.60], '>25%': [0.60, 0.60] },
+  'Muy malo':  { '<1%': [1.05, 0.95], '1-5%': [0.95, 0.75], '5-25%': [0.75, 0.40], '>25%': [0.40, 0.40] }
+}
+
+const drainageRange = computed(() => {
+  return drainageMatrix[calcDrainageQuality.value][calcDrainageExposure.value]
+})
+
+const estimatedDrainageValue = ref(1.00)
+
+watch([calcDrainageQuality, calcDrainageExposure], () => {
+  const range = drainageMatrix[calcDrainageQuality.value][calcDrainageExposure.value]
+  estimatedDrainageValue.value = parseFloat(((range[0] + range[1]) / 2).toFixed(2))
+})
+
+const openDrainageModal = (param) => {
+  currentDrainageParam.value = param
+  isDrainageHelpModalOpen.value = true
+  
+  // Set quality manually or let it be default
+  const range = drainageMatrix[calcDrainageQuality.value][calcDrainageExposure.value]
+  estimatedDrainageValue.value = parseFloat(((range[0] + range[1]) / 2).toFixed(2))
+}
+
+const applyDrainage = () => {
+  if (currentDrainageParam.value === 'm2') s.m2 = estimatedDrainageValue.value
+  if (currentDrainageParam.value === 'm3') s.m3 = estimatedDrainageValue.value
+  isDrainageHelpModalOpen.value = false
+}
+
+// --- Calculadora de Tránsito (W18) ---
+const isTrafficHelpModalOpen = ref(false)
+const calcTraffic = ref({ tpds: 775, k1: 39, k2: 45, r: 2.5, n: 10, fc: 1.78 })
+
+// K1 Estimator
+const showK1Estimator = ref(false)
+const calcK1 = ref({ buses: 9, c2: 18, c3: 5, articulados: 7 })
+const estimatedK1Sum = computed(() => {
+  return (calcK1.value.buses || 0) + (calcK1.value.c2 || 0) + (calcK1.value.c3 || 0) + (calcK1.value.articulados || 0)
+})
+const applyEstimatedK1 = () => {
+  calcTraffic.value.k1 = estimatedK1Sum.value
+  showK1Estimator.value = false
+}
+
+// KaTeX Formulas
+const formulaGeneralHtml = katex.renderToString(
+  String.raw`N = \text{TPDS} \times \left(\frac{k_1}{100}\right) \times \left(\frac{k_2}{100}\right) \times 365 \times \left[ \frac{(1+r)^n - 1}{\ln(1+r)} \right] \times FC`,
+  { throwOnError: false, displayMode: true }
+)
+
+const formulaPasoHtml = computed(() => {
+  const t = calcTraffic.value
+  const r_dec = t.r / 100
+  const eq = String.raw`N = ${t.tpds} \times \left(\frac{${t.k1}}{100}\right) \times \left(\frac{${t.k2}}{100}\right) \times 365 \times \left[ \frac{(1+${r_dec})^{${t.n}} - 1}{\ln(1+${r_dec})} \right] \times ${t.fc}`
+  return katex.renderToString(eq, { throwOnError: false, displayMode: true })
+})
+
+const calculatedW18 = computed(() => {
+  const t = calcTraffic.value
+  const r_decimal = t.r / 100
+  const fc_growth = r_decimal === 0 ? t.n : (Math.pow(1 + r_decimal, t.n) - 1) / Math.log(1 + r_decimal)
+  return t.tpds * (t.k1 / 100) * (t.k2 / 100) * 365 * fc_growth * t.fc
+})
+
+const applyCalculatedTraffic = () => {
+  if (!isNaN(calculatedW18.value)) {
+    s.W18 = Math.round(calculatedW18.value)
+  }
+  isTrafficHelpModalOpen.value = false
+}
+
+const exportTrafficPDF = async () => {
+  const doc = new jsPDF()
+  const t = calcTraffic.value
+  const r_dec = t.r / 100
+  const fc_growth = r_dec === 0 ? t.n : (Math.pow(1 + r_dec, t.n) - 1) / Math.log(1 + r_dec)
+  const W18 = Math.round(t.tpds * (t.k1 / 100) * (t.k2 / 100) * 365 * fc_growth * t.fc)
+  
+  doc.setFontSize(16)
+  doc.text('Memoria de Calculo - Ejes Equivalentes (W18)', 14, 20)
+  
+  doc.setFontSize(11)
+  doc.text('Metodologia: Guia AASHTO 93 (con crecimiento exponencial continuo)', 14, 28)
+  
+  autoTable(doc, {
+    startY: 35,
+    head: [['Parametro', 'Descripcion', 'Valor']],
+    body: [
+      ['TPDS', 'Transito Promedio Diario Semanal', `${t.tpds} veh/dia`],
+      ['FC', 'Factor Camion (Dano Equivalente)', t.fc.toFixed(2)],
+      ['k1', 'Porcentaje de Vehiculos Pesados', `${t.k1} %`],
+      ['k2', 'Factor Direccional y de Carril', `${t.k2} %`],
+      ['r', 'Tasa de Crecimiento Anual', `${t.r} %`],
+      ['n', 'Periodo de Diseno', `${t.n} anos`]
+    ],
+    theme: 'grid',
+    headStyles: { fillColor: [79, 70, 229] }
+  })
+  
+  let finalY = doc.lastAutoTable.finalY || 35
+  
+  doc.setFontSize(12)
+  doc.text('Desarrollo del Calculo Paso a Paso:', 14, finalY + 10)
+  finalY += 15
+  
+  // Agregar imagen de las ecuaciones de KaTeX
+  const eqContainer = document.getElementById('pdf-equations-container')
+  if (eqContainer) {
+    try {
+      const canvas = await html2canvas(eqContainer, { scale: 2, backgroundColor: '#f8fafc' })
+      const imgData = canvas.toDataURL('image/png')
+      
+      const pdfWidth = 182 // Ancho casi total de la página A4 (210 - 28)
+      const imgWidth = pdfWidth
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      
+      doc.addImage(imgData, 'PNG', 14, finalY, imgWidth, imgHeight)
+      finalY += imgHeight + 15
+    } catch(e) {
+      console.error('Error capturando ecuaciones para PDF', e)
+    }
+  }
+  
+  // Detalle textual
+  doc.setFontSize(10)
+  doc.setTextColor(100, 100, 100)
+  const vehPesadosCarril = t.tpds * (t.k1/100) * (t.k2/100)
+  doc.text(`1. Vehiculos pesados en el carril = TPDS x (k1/100) x (k2/100) = ${vehPesadosCarril.toFixed(2)} veh/dia`, 14, finalY)
+  
+  doc.text(`2. Volumen anual de pesados en el carril = ${vehPesadosCarril.toFixed(2)} x 365 = ${(vehPesadosCarril * 365).toFixed(2)} veh/ano`, 14, finalY + 8)
+  
+  doc.text(`3. Factor de Crecimiento Acumulado = ((1+r)^n - 1) / ln(1+r) = ${fc_growth.toFixed(4)}`, 14, finalY + 16)
+  
+  const totalPesados = vehPesadosCarril * 365 * fc_growth
+  doc.text(`4. Total de vehiculos pesados = Volumen Anual x Factor Crecimiento = ${totalPesados.toFixed(2)}`, 14, finalY + 24)
+  
+  doc.text(`5. Ejes Equivalentes = Total vehiculos x FC = ${totalPesados.toFixed(2)} x ${t.fc} = ${W18.toLocaleString('en-US')}`, 14, finalY + 32)
+  
+  doc.setFontSize(14)
+  doc.setTextColor(79, 70, 229)
+  doc.text(`Resultado Final (N) = ${W18.toLocaleString('en-US')} ejes equivalentes`, 14, finalY + 45)
+  
+  doc.save('Memoria_Calculo_W18.pdf')
+}
+
+const calcHelpKey = ref(null)
+const calcHelpTitles = {
+  tpds: 'TPDS Inicial',
+  fc: 'Factor Camión (FC)',
+  k1: 'Vehículos Pesados (k₁)',
+  k2: 'Factor Direccional/Carril (k₂)',
+  r: 'Tasa de Crecimiento (r)',
+  n: 'Período de Diseño (n)'
 }
 
 // --- Campana de Gauss para Confiabilidad R% (Interactiva y Taller) ---
@@ -903,6 +2097,12 @@ const handleClickOutside = (e) => {
   }
 
   if (!activeParam.value) return
+  
+  // No cerrar el panel si hay algún modal de guía abierto
+  if (isHelpModalOpen.value || isReliabilityHelpModalOpen.value || isServHelpModalOpen.value || isTrafficHelpModalOpen.value || calcHelpKey.value || isA1HelpModalOpen.value || isA2HelpModalOpen.value || isA3HelpModalOpen.value || isMrHelpModalOpen.value || isDrainageHelpModalOpen.value) {
+    return
+  }
+
   const panel = document.querySelector('.fixed.left-24')
   const sidebar = document.querySelector('aside')
   if (panel && !panel.contains(e.target) && sidebar && !sidebar.contains(e.target)) {

@@ -1,8 +1,11 @@
 <template>
-  <div class="bg-white rounded-2xl border border-slate-100 shadow-sm shadow-slate-100/40 p-6 flex flex-col relative min-h-0">
-    <div class="flex items-center justify-between mb-4 shrink-0 flex-wrap gap-2">
-      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">Modelo tridimensional (3D)</h2>
-      
+  <div class="bg-white rounded-2xl border border-slate-100 shadow-sm shadow-slate-100/40 p-4 select-none flex flex-col h-full overflow-hidden">
+    <!-- Controles Superiores -->
+    <div class="flex flex-wrap items-center justify-between mb-4 gap-4 shrink-0">
+      <div class="flex items-center gap-2">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">Modelo 3D (Carga)</h2>
+      </div>
+
       <div class="flex items-center gap-2">
         <!-- Selector de Eje Vehicular -->
         <div class="flex gap-1.5 bg-slate-100 p-0.5 rounded-lg text-[10px] font-bold">
@@ -19,7 +22,14 @@
               'px-2.5 py-1 rounded-md transition-all cursor-pointer select-none',
               axleType === 'double' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
             ]"
-          >Eje Doble (Tándem)</button>
+          >Eje Tándem</button>
+          <button
+            @click="axleType = 'c3s2'"
+            :class="[
+              'px-2.5 py-1 rounded-md transition-all cursor-pointer select-none',
+              axleType === 'c3s2' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+            ]"
+          >Camión C3-S2</button>
         </div>
 
         <!-- Selector de Bulbo de Presión -->
@@ -38,13 +48,13 @@
     </div>
 
     <!-- Contenedor WebGL con fondo claro -->
-    <div ref="container" class="w-full h-80 md:h-[400px] bg-slate-50/50 border border-slate-100 rounded-xl overflow-hidden relative shrink-0 shadow-inner">
+    <div ref="container" class="w-full flex-1 min-h-0 bg-slate-50/50 border border-slate-100 rounded-xl overflow-hidden relative shadow-inner">
       <!-- Instrucciones de Cámara -->
-      <span class="absolute bottom-3 left-3 text-[9px] font-bold text-slate-500 uppercase tracking-widest pointer-events-none select-none bg-white/80 border border-slate-200/50 shadow-sm px-2.5 py-1 rounded-lg backdrop-blur-sm">
-        Arrastra para rotar • Click Der para desplazar • Scroll para zoom
+      <span class="absolute bottom-3 left-3 text-[9px] font-bold text-slate-500 uppercase tracking-widest pointer-events-none select-none bg-white/80 border border-slate-200/50 shadow-sm px-2.5 py-1 rounded-lg backdrop-blur-sm z-10">
+        Arrastra para rotar • Click Der para desplazar
       </span>
       
-      <div v-if="!results" class="absolute inset-0 flex items-center justify-center text-slate-400 text-xs font-semibold bg-slate-50/50">
+      <div v-if="!results" class="absolute inset-0 flex items-center justify-center text-slate-400 text-xs font-semibold bg-slate-50/50 z-20">
         Ingresa parámetros para iniciar render 3D
       </div>
     </div>
@@ -228,37 +238,56 @@ function createProceduralTextures() {
     sideCtx.stroke()
   }
 
-  // Textos grabados Bridgestone
+  // Función auxiliar para texto circular
+  function drawCircularText(ctx, text, cx, cy, radius, startAngle, bottomAlign = false) {
+    ctx.save()
+    ctx.translate(cx, cy)
+    
+    let totalAngle = 0
+    for(let i = 0; i < text.length; i++) {
+      totalAngle += ctx.measureText(text[i]).width / radius
+    }
+    
+    if (bottomAlign) {
+      ctx.rotate(startAngle + totalAngle / 2)
+      for(let i = 0; i < text.length; i++) {
+        const char = text[i]
+        const theta = ctx.measureText(char).width / radius
+        ctx.rotate(-theta / 2)
+        ctx.fillText(char, 0, radius)
+        ctx.rotate(-theta / 2)
+      }
+    } else {
+      ctx.rotate(startAngle - totalAngle / 2)
+      for(let i = 0; i < text.length; i++) {
+        const char = text[i]
+        const theta = ctx.measureText(char).width / radius
+        ctx.rotate(theta / 2)
+        ctx.fillText(char, 0, -radius)
+        ctx.rotate(theta / 2)
+      }
+    }
+    ctx.restore()
+  }
+
+  // Textos grabados Bridgestone (Circulares)
   sideCtx.fillStyle = '#a1a1aa'
   sideCtx.font = 'bold 24px Arial, sans-serif'
   sideCtx.textAlign = 'center'
   sideCtx.textBaseline = 'middle'
   
-  sideCtx.save()
-  sideCtx.translate(cx, cy)
-  sideCtx.fillText('BRIDGESTONE', 0, -188)
-  sideCtx.restore()
-
-  sideCtx.save()
-  sideCtx.translate(cx, cy)
-  sideCtx.rotate(Math.PI)
-  sideCtx.fillText('M-DRIVE 002', 0, -188)
-  sideCtx.restore()
+  // Arriba (Lee de izq a der)
+  drawCircularText(sideCtx, 'BRIDGESTONE', cx, cy, 188, 0, false)
+  // Abajo (Lee de izq a der, derecho)
+  drawCircularText(sideCtx, 'M-DRIVE 002', cx, cy, 188, 0, true)
 
   sideCtx.font = 'bold 12px Arial, sans-serif'
   sideCtx.fillStyle = '#71717a'
   
-  sideCtx.save()
-  sideCtx.translate(cx, cy)
-  sideCtx.rotate(-Math.PI / 2)
-  sideCtx.fillText('315 / 80 R 22.5', 0, -188)
-  sideCtx.restore()
-
-  sideCtx.save()
-  sideCtx.translate(cx, cy)
-  sideCtx.rotate(Math.PI / 2)
-  sideCtx.fillText('REGIONAL / LONG HAUL', 0, -188)
-  sideCtx.restore()
+  // Izquierda (Lee de abajo hacia arriba)
+  drawCircularText(sideCtx, '315 / 80 R 22.5', cx, cy, 188, -Math.PI / 2, false)
+  // Derecha (Lee de arriba hacia abajo)
+  drawCircularText(sideCtx, 'REGIONAL / LONG HAUL', cx, cy, 188, Math.PI / 2, false)
 
   const sideTex = new THREE.CanvasTexture(sideCanvas)
   textures.tireSidewall = sideTex
@@ -388,7 +417,7 @@ function initThree() {
   renderer.setSize(width, height)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.shadowMap.enabled = true
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap
+  renderer.shadowMap.type = THREE.PCFShadowMap
   renderer.localClippingEnabled = true // Activar planos de recorte local en la GPU
   container.value.appendChild(renderer.domElement)
 
@@ -440,22 +469,26 @@ function initThree() {
   function animate() {
     animId = requestAnimationFrame(animate)
     
+    const isC3S2 = axleType.value === 'c3s2'
+    const currentDepth = isC3S2 ? 35 : 5
+
     // 1. Rotar los neumáticos respecto a su centro en el eje X
     wheelsList.forEach(wheel => {
-      wheel.rotation.x += 0.04
+      wheel.rotation.x -= 0.04
     })
 
     // 2. Desplazar la textura del asfalto en V (eje Y del canvas) para simular movimiento
     if (textures.asphalt) {
-      textures.asphalt.offset.y -= ROAD_SPEED / DEPTH_3D_VAL
+      textures.asphalt.offset.y -= ROAD_SPEED / currentDepth
     }
 
     // 3. Desplazar los guiones amarillos centrales en el eje Z
     roadDashes.forEach(dash => {
       dash.position.z += ROAD_SPEED
-      // Si el guión sale completamente del borde frontal (+2.75 con el clipping de GPU), lo devolvemos al borde trasero (-2.75)
-      if (dash.position.z > 2.75) {
-        dash.position.z -= 5.5
+      const limit = currentDepth / 2 + 0.25
+      if (dash.position.z > limit) {
+        // Enviar al principio (borde trasero)
+        dash.position.z -= (currentDepth + 0.5)
       }
     })
     
@@ -490,12 +523,16 @@ function updatePavement() {
 
   if (!results.value) return
 
+  const isC3S2 = axleType.value === 'c3s2'
+  const currentDepth = isC3S2 ? 35 : 5
+  const currentWidth = isC3S2 ? 10 : 7
+
   const capas = results.value.capas
   let yOffset = 0
 
   capas.forEach((capa) => {
     const h = capa.cm * SCALE_Y
-    const geom = new THREE.BoxGeometry(WIDTH_3D, h, DEPTH_3D)
+    const geom = new THREE.BoxGeometry(currentWidth, h, currentDepth)
 
     // Asignar textura de acuerdo a la capa
     let tex = textures.asphalt
@@ -525,7 +562,7 @@ function updatePavement() {
 
   // Subrasante
   const subH = 1.5
-  const subGeom = new THREE.BoxGeometry(WIDTH_3D, subH, DEPTH_3D)
+  const subGeom = new THREE.BoxGeometry(currentWidth, subH, currentDepth)
   const subMat = new THREE.MeshStandardMaterial({
     color: 0x15803d, // Verde oscuro
     roughness: 0.98,
@@ -536,44 +573,53 @@ function updatePavement() {
   subMesh.receiveShadow = true
   layerGroup.add(subMesh)
 
-  // --- Líneas de Demarcación Vial (Dos Carriles con Movimiento y Recorte por GPU) ---
-  // Definir planos de recorte en los extremos Z del pavimento (Z = ±2.5)
+  // --- Líneas de Demarcación Vial ---
+  const clipLimit = currentDepth / 2
   const clipPlanes = [
-    new THREE.Plane(new THREE.Vector3(0, 0, -1), 2.5), // Corta todo Z > 2.5
-    new THREE.Plane(new THREE.Vector3(0, 0, 1), 2.5)   // Corta todo Z < -2.5
+    new THREE.Plane(new THREE.Vector3(0, 0, -1), clipLimit),
+    new THREE.Plane(new THREE.Vector3(0, 0, 1), clipLimit)
   ]
 
-  // 1. Línea Blanca Lateral Izquierda (x = -3.2)
-  const lineLeftGeom = new THREE.BoxGeometry(0.12, 0.002, DEPTH_3D)
-  const lineLeftMat = new THREE.MeshBasicMaterial({ color: 0xf8fafc, clippingPlanes: clipPlanes }) // Blanco sólido con recorte
+  const lineOffset = currentWidth / 2 - 0.4 // Líneas blancas en los bordes
+
+  // 1. Línea Blanca Lateral Izquierda
+  const lineLeftGeom = new THREE.BoxGeometry(0.12, 0.002, currentDepth)
+  const lineLeftMat = new THREE.MeshBasicMaterial({ color: 0xf8fafc, clippingPlanes: clipPlanes })
   const lineLeftMesh = new THREE.Mesh(lineLeftGeom, lineLeftMat)
-  lineLeftMesh.position.set(-3.2, 0.001, 0)
+  lineLeftMesh.position.set(-lineOffset, 0.001, 0)
   lineLeftMesh.receiveShadow = true
   layerGroup.add(lineLeftMesh)
 
-  // 2. Línea Blanca Lateral Derecha (x = 3.2)
-  const lineRightGeom = new THREE.BoxGeometry(0.12, 0.002, DEPTH_3D)
+  // 2. Línea Blanca Lateral Derecha
+  const lineRightGeom = new THREE.BoxGeometry(0.12, 0.002, currentDepth)
   const lineRightMat = new THREE.MeshBasicMaterial({ color: 0xf8fafc, clippingPlanes: clipPlanes })
   const lineRightMesh = new THREE.Mesh(lineRightGeom, lineRightMat)
-  lineRightMesh.position.set(3.2, 0.001, 0)
+  lineRightMesh.position.set(lineOffset, 0.001, 0)
   lineRightMesh.receiveShadow = true
   layerGroup.add(lineRightMesh)
 
-  // 3. Línea Central Amarilla Intermitente (x = 0)
+  // 3. Líneas Centrales Amarillas (Múltiples si es más ancho)
   roadDashes = []
   const dashLength = 0.5
   const dashGeom = new THREE.BoxGeometry(0.10, 0.002, dashLength)
-  const dashMat = new THREE.MeshBasicMaterial({ color: 0xeab308, clippingPlanes: clipPlanes }) // Amarillo tráfico con recorte
+  const dashMat = new THREE.MeshBasicMaterial({ color: 0xeab308, clippingPlanes: clipPlanes })
   
-  for (let i = 0; i < 5; i++) {
-    const dashMesh = new THREE.Mesh(dashGeom, dashMat)
-    // Distribuir de z = -2.2 a z = 2.2 para espaciamiento uniforme inicial (intervalos de 1.1)
-    const startZ = -2.2 + i * 1.1
-    dashMesh.position.set(0, 0.001, startZ)
-    dashMesh.receiveShadow = true
-    layerGroup.add(dashMesh)
-    roadDashes.push(dashMesh)
-  }
+  const numDashes = Math.ceil(currentDepth / 1.1) + 1
+  const startOffset = -currentDepth / 2
+  
+  // Si es C3S2 (doble de ancho), añadimos dos carriles de guiones amarillos
+  const centerOffsets = isC3S2 ? [-1.6, 1.6] : [0]
+  
+  centerOffsets.forEach(cx => {
+    for (let i = 0; i < numDashes; i++) {
+      const dashMesh = new THREE.Mesh(dashGeom, dashMat)
+      const startZ = startOffset + i * 1.1
+      dashMesh.position.set(cx, 0.001, startZ)
+      dashMesh.receiveShadow = true
+      layerGroup.add(dashMesh)
+      roadDashes.push(dashMesh)
+    }
+  })
 }
 
 // Dibujar Eje Ruedas en 3D
@@ -596,69 +642,38 @@ function updateVehicle() {
 
   wheelsList = []
   const isDouble = axleType.value === 'double'
+  const isC3S2 = axleType.value === 'c3s2'
+  const currentDepth = isC3S2 ? 22 : 5
 
-  // Materiales para neumáticos Bridgestone
-  const tireTreadMat = new THREE.MeshStandardMaterial({ 
-    map: textures.tireTread, 
-    roughness: 0.8,
-    metalness: 0.1 
-  })
-  const tireSidewallMat = new THREE.MeshStandardMaterial({ 
-    map: textures.tireSidewall, 
-    roughness: 0.8,
-    metalness: 0.1 
-  })
-  const tireMaterials = [
-    tireTreadMat,    // Lado / Banda de rodadura
-    tireSidewallMat, // Tapa superior (exterior)
-    tireSidewallMat  // Tapa inferior (interior)
-  ]
+  // Materiales...
+  const tireTreadMat = new THREE.MeshStandardMaterial({ map: textures.tireTread, roughness: 0.8, metalness: 0.1 })
+  const tireSidewallMat = new THREE.MeshStandardMaterial({ map: textures.tireSidewall, roughness: 0.8, metalness: 0.1 })
+  const tireMaterials = [tireTreadMat, tireSidewallMat, tireSidewallMat]
 
-  // Materiales para rines galvanizados (satinados)
-  const rimFaceMat = new THREE.MeshStandardMaterial({
-    map: textures.rim,
-    roughness: 0.38, // Mayor rugosidad para aspecto satinado/galvanizado
-    metalness: 0.85  // Metalicidad de chapa de acero
-  })
-  const rimSideMat = new THREE.MeshStandardMaterial({
-    color: 0x94a3b8,
-    roughness: 0.4,
-    metalness: 0.8
-  })
-  const rimMaterials = [
-    rimSideMat, // Lado del cilindro del rin
-    rimFaceMat, // Tapa superior
-    rimFaceMat  // Tapa inferior
-  ]
+  const rimFaceMat = new THREE.MeshStandardMaterial({ map: textures.rim, roughness: 0.3, metalness: 0.5 })
+  const rimSideMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.4, metalness: 0.8 })
+  const rimMaterials = [rimSideMat, rimFaceMat, rimFaceMat]
 
   const hubMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.2, metalness: 0.9 })
   const axleMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.3, metalness: 0.8 })
 
-  // Dimensiones del Neumático (Cilindro con radio 0.90 y espesor 0.40)
   const R_WHEEL = 0.90
   const TIRE_GEOM = new THREE.CylinderGeometry(R_WHEEL, R_WHEEL, 0.40, 32)
-  TIRE_GEOM.rotateZ(Math.PI / 2) // Orientar el eje del cilindro hacia X para que ruede sobre Z
+  TIRE_GEOM.rotateZ(Math.PI / 2)
+  const RIM_GEOM = new THREE.CylinderGeometry(0.48, 0.48, 0.404, 24)
+  RIM_GEOM.rotateZ(Math.PI / 2)
 
-  // Llanta / Rin central (Cilindro más angosto para que quede rebajado dentro del neumático)
-  const RIM_GEOM = new THREE.CylinderGeometry(0.48, 0.48, 0.36, 24)
-  RIM_GEOM.rotateZ(Math.PI / 2) // Orientar hacia X
-
-  // Generador de etiqueta Sprite "8.2 Ton" con sombra de texto de alta definición
   const labelCanvas = document.createElement('canvas')
   labelCanvas.width = 256
   labelCanvas.height = 128
   const labelCtx = labelCanvas.getContext('2d')
-  
-  // Dibujar tarjeta roja con bordes redondeados y contorno blanco
-  labelCtx.fillStyle = '#ef4444' // Rojo brillante
+  labelCtx.fillStyle = '#ef4444'
   labelCtx.beginPath()
   labelCtx.roundRect(8, 8, 240, 112, 16)
   labelCtx.fill()
   labelCtx.lineWidth = 6
   labelCtx.strokeStyle = '#ffffff'
   labelCtx.stroke()
-
-  // Texto blanco con sombra
   labelCtx.fillStyle = '#ffffff'
   labelCtx.font = 'bold 38px sans-serif'
   labelCtx.textAlign = 'center'
@@ -668,158 +683,233 @@ function updateVehicle() {
   labelCtx.shadowOffsetX = 2
   labelCtx.shadowOffsetY = 2
   labelCtx.fillText('8.2 Ton', 128, 64)
-  
   const labelTex = new THREE.CanvasTexture(labelCanvas)
   const labelMat = new THREE.SpriteMaterial({ map: labelTex })
 
-  function buildAxle(zPos) {
-    // Eje central extendido a 6.0 unidades para acomodar la nueva separación
-    const axleGeom = new THREE.CylinderGeometry(0.12, 0.12, 6.0, 12)
+  function buildAxle(zPos, isSingleWheels = false, hideLabel = false) {
+    const axleLength = isSingleWheels ? 5.2 : 6.0
+    const axleGeom = new THREE.CylinderGeometry(0.12, 0.12, axleLength, 12)
     axleGeom.rotateZ(Math.PI / 2)
     const axleMesh = new THREE.Mesh(axleGeom, axleMat)
     axleMesh.position.set(0, R_WHEEL, zPos)
     axleMesh.castShadow = true
     vehicleGroup.add(axleMesh)
 
-    // Ruedas duales (Izquierda y Derecha) con separación de 10 cm (0.10 unidades libres)
-    const xOffsets = [-2.85, -2.35, 2.35, 2.85]
+    const xOffsets = isSingleWheels ? [-2.5, 2.5] : [-2.85, -2.35, 2.35, 2.85]
     xOffsets.forEach((x, i) => {
-      // Crear neumático (Cylinder)
       const tireMesh = new THREE.Mesh(TIRE_GEOM, tireMaterials)
       tireMesh.position.set(x, R_WHEEL, zPos)
       tireMesh.castShadow = true
 
-      // Crear Rin central (Cylinder)
       const rimMesh = new THREE.Mesh(RIM_GEOM, rimMaterials)
       rimMesh.castShadow = true
       tireMesh.add(rimMesh)
 
-      // Tapón plateado central (Taza de rueda)
-      if (i === 0 || i === 3) {
+      const isOuter = isSingleWheels ? true : (i === 0 || i === 3)
+      if (isOuter) {
         const hubGeom = new THREE.CylinderGeometry(0.18, 0.18, 0.05, 12)
         hubGeom.rotateZ(Math.PI / 2)
         const hubMesh = new THREE.Mesh(hubGeom, hubMat)
-        // Posicionar relativo al neumático (en la cara externa)
         hubMesh.position.set(i === 0 ? -0.19 : 0.19, 0, 0)
         tireMesh.add(hubMesh)
       }
-
       vehicleGroup.add(tireMesh)
       wheelsList.push(tireMesh)
     })
 
-    // Flecha indicadora de carga 3D sólida y emisiva (Cilindro + Cono)
-    const arrowGroup = new THREE.Group()
-    const arrowMat = new THREE.MeshStandardMaterial({
-      color: 0xef4444,     // Rojo vibrante
-      emissive: 0x991b1b,  // Resplandor rojo oscuro
-      roughness: 0.15,
-      metalness: 0.8
-    })
+    if (!hideLabel) {
+      const arrowGroup = new THREE.Group()
+      const arrowMat = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0x991b1b, roughness: 0.15, metalness: 0.8 })
+      const coneGeom = new THREE.ConeGeometry(0.22, 0.4, 16)
+      const coneMesh = new THREE.Mesh(coneGeom, arrowMat)
+      coneMesh.rotation.z = Math.PI
+      coneMesh.position.y = 0.2
+      coneMesh.castShadow = true
+      arrowGroup.add(coneMesh)
+      const shaftGeom = new THREE.CylinderGeometry(0.08, 0.08, 0.8, 16)
+      const shaftMesh = new THREE.Mesh(shaftGeom, arrowMat)
+      shaftMesh.position.y = 0.8
+      shaftMesh.castShadow = true
+      arrowGroup.add(shaftMesh)
+      arrowGroup.position.set(0, R_WHEEL + 0.15, zPos)
+      vehicleGroup.add(arrowGroup)
 
-    // Punta (cono)
-    const coneGeom = new THREE.ConeGeometry(0.22, 0.4, 16)
-    const coneMesh = new THREE.Mesh(coneGeom, arrowMat)
-    coneMesh.rotation.z = Math.PI // Apuntar hacia abajo
-    coneMesh.position.y = 0.2     // Colocar para que la punta esté en y=0
-    coneMesh.castShadow = true
-    arrowGroup.add(coneMesh)
-
-    // Cuerpo (cilindro)
-    const shaftGeom = new THREE.CylinderGeometry(0.08, 0.08, 0.8, 16)
-    const shaftMesh = new THREE.Mesh(shaftGeom, arrowMat)
-    shaftMesh.position.y = 0.8     // Colocar para que empiece en y=0.4 y suba a y=1.2
-    shaftMesh.castShadow = true
-    arrowGroup.add(shaftMesh)
-
-    // Posicionar flecha justo encima del eje
-    arrowGroup.position.set(0, R_WHEEL + 0.15, zPos)
-    vehicleGroup.add(arrowGroup)
-
-    // Etiqueta flotante Sprite de alta visibilidad
-    const labelSprite = new THREE.Sprite(labelMat)
-    labelSprite.scale.set(2.8, 1.4, 1) // Escala aumentada
-    labelSprite.position.set(0, R_WHEEL + 1.6, zPos)
-    vehicleGroup.add(labelSprite)
+      const labelSprite = new THREE.Sprite(labelMat)
+      labelSprite.scale.set(2.8, 1.4, 1)
+      labelSprite.position.set(0, R_WHEEL + 1.6, zPos)
+      vehicleGroup.add(labelSprite)
+    }
   }
 
-  if (isDouble) {
+  if (isC3S2) {
+    // Front Axle
+    buildAxle(-7.5, true, true)
+    
+    // Tractor Tandem
+    buildAxle(-3.0, false, true)
+    buildAxle(-1.5, false, true)
+
+    // Trailer Tandem
+    buildAxle(4.5, false, true)
+    buildAxle(6.0, false, true)
+
+    // --- TRACTOCAMIÓN (CABEZOTE) ---
+    // Chasis Tractor (Estructura base)
+    const tBedGeom = new THREE.BoxGeometry(2.0, 0.4, 8.0)
+    const tBedMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6, metalness: 0.5 })
+    const tBed = new THREE.Mesh(tBedGeom, tBedMat)
+    tBed.position.set(0, R_WHEEL + 0.4, -4.0)
+    tBed.castShadow = true
+    vehicleGroup.add(tBed)
+
+    // Materiales comunes de cabina
+    const cabColor = 0xb91c1c // Rojo cereza oscuro brillante
+    const cabMat = new THREE.MeshStandardMaterial({ color: cabColor, roughness: 0.2, metalness: 0.4 })
+    const glassMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.1, metalness: 0.9 })
+    const chromeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.1, metalness: 1.0 })
+
+    // Cabina Principal
+    const cabGeom = new THREE.BoxGeometry(3.5, 3.5, 2.5)
+    const cab = new THREE.Mesh(cabGeom, cabMat)
+    cab.position.set(0, 1.3 + 1.75, -4.75)
+    cab.castShadow = true
+    vehicleGroup.add(cab)
+
+    // Trompa (Capó)
+    const hoodGeom = new THREE.BoxGeometry(3.0, 1.8, 1.8)
+    const hood = new THREE.Mesh(hoodGeom, cabMat)
+    hood.position.set(0, 1.3 + 0.9, -6.9)
+    hood.castShadow = true
+    vehicleGroup.add(hood)
+
+    // Persiana (Grill) Cromada
+    const grillGeom = new THREE.PlaneGeometry(2.6, 1.5)
+    const grill = new THREE.Mesh(grillGeom, chromeMat)
+    grill.position.set(0, 2.2, -7.81)
+    grill.rotation.y = Math.PI
+    vehicleGroup.add(grill)
+
+    // Parabrisas
+    const windGeom = new THREE.PlaneGeometry(3.1, 1.4)
+    const wind = new THREE.Mesh(windGeom, glassMat)
+    wind.position.set(0, 3.8, -6.01)
+    wind.rotation.y = Math.PI
+    vehicleGroup.add(wind)
+
+    // Vidrios Laterales
+    const sideWinGeom = new THREE.PlaneGeometry(1.4, 1.4)
+    const winLeft = new THREE.Mesh(sideWinGeom, glassMat)
+    winLeft.position.set(-1.76, 3.8, -4.75)
+    winLeft.rotation.y = -Math.PI / 2
+    vehicleGroup.add(winLeft)
+    const winRight = new THREE.Mesh(sideWinGeom, glassMat)
+    winRight.position.set(1.76, 3.8, -4.75)
+    winRight.rotation.y = Math.PI / 2
+    vehicleGroup.add(winRight)
+
+    // Chimeneas (Escapes Verticales)
+    const exhaustGeom = new THREE.CylinderGeometry(0.12, 0.12, 4.5, 12)
+    const exLeft = new THREE.Mesh(exhaustGeom, chromeMat)
+    exLeft.position.set(-2.0, 3.5, -3.4)
+    exLeft.castShadow = true
+    vehicleGroup.add(exLeft)
+    const exRight = new THREE.Mesh(exhaustGeom, chromeMat)
+    exRight.position.set(2.0, 3.5, -3.4)
+    exRight.castShadow = true
+    vehicleGroup.add(exRight)
+
+    // Tanques de Combustible (Laterales cilíndricos)
+    const tankGeom = new THREE.CylinderGeometry(0.45, 0.45, 1.6, 16)
+    tankGeom.rotateZ(Math.PI / 2)
+    const tankLeft = new THREE.Mesh(tankGeom, chromeMat)
+    tankLeft.position.set(-1.4, 1.0, -4.7)
+    tankLeft.castShadow = true
+    vehicleGroup.add(tankLeft)
+    const tankRight = new THREE.Mesh(tankGeom, chromeMat)
+    tankRight.position.set(1.4, 1.0, -4.7)
+    tankRight.castShadow = true
+    vehicleGroup.add(tankRight)
+
+    // Quinta Rueda (Acople del remolque)
+    const fwGeom = new THREE.CylinderGeometry(0.8, 0.8, 0.1, 16)
+    const fw = new THREE.Mesh(fwGeom, new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 }))
+    fw.position.set(0, 1.55, -2.25)
+    vehicleGroup.add(fw)
+
+    // Guardabarros Traseros (Tractocamión)
+    const mudMat = new THREE.MeshStandardMaterial({ color: 0x0a0a0a, roughness: 0.9 })
+    const mudTractorGeom = new THREE.BoxGeometry(4.0, 1.0, 0.05)
+    const mudTractor = new THREE.Mesh(mudTractorGeom, mudMat)
+    mudTractor.position.set(0, 0.8, -0.6)
+    vehicleGroup.add(mudTractor)
+
+    // --- SEMIRREMOLQUE (FURGÓN) ---
+    // Plataforma del Remolque
+    const pBedGeom = new THREE.BoxGeometry(4.0, 0.3, 9.5)
+    const pBedMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.7, metalness: 0.2 })
+    const pBed = new THREE.Mesh(pBedGeom, pBedMat)
+    pBed.position.set(0, 1.75, 2.375)
+    pBed.castShadow = true
+    vehicleGroup.add(pBed)
+
+    // Caja / Contenedor de Carga
+    const boxGeom = new THREE.BoxGeometry(4.0, 4.5, 9.5)
+    // Usamos textura blanca corrugada simple (solo color y sombreado para que se vea limpio)
+    const boxMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.5, metalness: 0.1 })
+    const cargoBox = new THREE.Mesh(boxGeom, boxMat)
+    cargoBox.position.set(0, 1.75 + 2.25, 2.375)
+    cargoBox.castShadow = true
+    vehicleGroup.add(cargoBox)
+
+    // Guardabarros Traseros (Remolque)
+    const mudTrailer = new THREE.Mesh(mudTractorGeom, mudMat)
+    mudTrailer.position.set(0, 0.8, 6.9)
+    vehicleGroup.add(mudTrailer)
+
+    camera.position.set(16, 11, 20) // Alejar cámara para ver todo el camión majestuoso
+  } else if (isDouble) {
     buildAxle(-1.35)
     buildAxle(1.35)
-
-    // Barras de suspensión lateral
     const linkGeom = new THREE.BoxGeometry(0.15, 0.26, 3.0)
     const linkLeft = new THREE.Mesh(linkGeom, axleMat)
     linkLeft.position.set(-2.0, R_WHEEL, 0)
     linkLeft.castShadow = true
     vehicleGroup.add(linkLeft)
-
     const linkRight = new THREE.Mesh(linkGeom, axleMat)
     linkRight.position.set(2.0, R_WHEEL, 0)
     linkRight.castShadow = true
     vehicleGroup.add(linkRight)
+    
+    camera.position.set(9, 7, 10.5) // Restaurar cámara
   } else {
     buildAxle(0)
+    camera.position.set(9, 7, 10.5) // Restaurar cámara
   }
 
-  if (isDouble) {
-    buildAxle(-1.35)
-    buildAxle(1.35)
-
-    // Barras de suspensión lateral
-    const linkGeom = new THREE.BoxGeometry(0.15, 0.26, 3.0)
-    const linkLeft = new THREE.Mesh(linkGeom, axleMat)
-    linkLeft.position.set(-2.0, R_WHEEL, 0)
-    linkLeft.castShadow = true
-    vehicleGroup.add(linkLeft)
-
-    const linkRight = new THREE.Mesh(linkGeom, axleMat)
-    linkRight.position.set(2.0, R_WHEEL, 0)
-    linkRight.castShadow = true
-    vehicleGroup.add(linkRight)
-  } else {
-    buildAxle(0)
-  }
-
-  // --- Dibujar los Bulbos de Presiones en las Caras Laterales (Paralelas a las Llantas) ---
-  if (showStressBulb.value && results.value) {
+  // --- Dibujar los Bulbos de Presiones ---
+  if (showStressBulb.value && results.value && !isC3S2) {
     const capas = results.value.capas
     let yTotal = 0
-    capas.forEach(c => {
-      yTotal += c.cm * SCALE_Y
-    })
+    capas.forEach(c => { yTotal += c.cm * SCALE_Y })
     const subH = 1.5
     yTotal += subH
 
-    // Obtener el SN acumulado total
     const SN = results.value.SNT[2] || 3.0
-
-    // Canvas de renderizado para textura del bulbo lateral (YZ)
     const stressCanvas = document.createElement('canvas')
     stressCanvas.width = 512
     stressCanvas.height = 256
-    
     drawStressBulbSide(stressCanvas, 512, 256, capas, SN)
-    
     const stressTex = new THREE.CanvasTexture(stressCanvas)
     const stressMat = new THREE.MeshBasicMaterial({
-      map: stressTex,
-      transparent: true,
-      opacity: 0.95,
-      side: THREE.DoubleSide,
-      depthWrite: false
+      map: stressTex, transparent: true, opacity: 0.95, side: THREE.DoubleSide, depthWrite: false
     })
 
-    // La anchura de la geometría es DEPTH_3D (5) a lo largo de Z, altura es yTotal
-    const planeGeom = new THREE.PlaneGeometry(DEPTH_3D, yTotal)
-
-    // Plano lateral derecho (+X, un poco desplazado hacia afuera para evitar Z-fighting)
+    const planeGeom = new THREE.PlaneGeometry(currentDepth, yTotal)
     const rightPlane = new THREE.Mesh(planeGeom, stressMat)
     rightPlane.position.set(3.501, -yTotal / 2, 0)
     rightPlane.rotation.y = Math.PI / 2
     vehicleGroup.add(rightPlane)
 
-    // Plano lateral izquierdo (-X)
     const leftPlane = new THREE.Mesh(planeGeom, stressMat)
     leftPlane.position.set(-3.501, -yTotal / 2, 0)
     leftPlane.rotation.y = -Math.PI / 2
